@@ -1,0 +1,38 @@
+# ---- Internal PM docs — NEVER commit to the public repo ----
+# These live outside the repo in ../SplitRails-internal and are shared via the team drive.
+# This is a safety net in case someone recreates the folder inside the repo.
+docs/pm/
+*-INTERNAL.md
+
+# ---- Rust / Soroban ----
+target/
+**/*.rs.bk
+*.wasm
+.soroban/
+.stellar/
+
+# ---- Node / React ----
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# ---- Env & secrets (NEVER commit keys, even testnet) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secret-key*
+identity*.toml
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+.gstack/
+.playwright-mcp/
