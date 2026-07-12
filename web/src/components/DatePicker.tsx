@@ -104,16 +104,16 @@ export function DatePicker({ value, onChange, className = '' }: DatePickerProps)
         onClick={openPicker}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-2 py-2.5 px-3 border-[0.5px] border-[#C6C5D4] rounded-lg text-sm font-sans bg-white text-[#0b1c30] cursor-pointer hover:bg-[#F8F9FF] focus:outline-none focus:border-[#007AFF] focus:shadow-[0_0_0_2px_rgba(0,122,255,0.1)]"
+        className="w-full flex items-center justify-between gap-2 py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-sans bg-white text-text-primary cursor-pointer hover:bg-bg focus:outline-none focus:border-info focus:shadow-[0_0_0_2px_rgba(0,122,255,0.1)]"
       >
         <span>{label}</span>
-        <span className="msym text-base text-[#767683]">calendar_today</span>
+        <span className="msym text-base text-text-muted">calendar_today</span>
       </button>
 
       {open && (
         <div
           style={{ width: POPUP_WIDTH }}
-          className={`absolute z-20 mt-1.5 p-2.5 bg-white/95 backdrop-blur-xl rounded-xl border-[0.5px] border-[#c6c5d4]/60 shadow-[0_12px_28px_rgba(11,28,48,0.14),0_2px_8px_rgba(11,28,48,0.06)] ${
+          className={`absolute z-20 mt-1.5 p-2.5 bg-white/95 backdrop-blur-xl rounded-xl border-[0.5px] border-border/60 shadow-[0_12px_28px_rgba(11,28,48,0.14),0_2px_8px_rgba(11,28,48,0.06)] ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
@@ -121,17 +121,17 @@ export function DatePicker({ value, onChange, className = '' }: DatePickerProps)
             <button
               type="button"
               onClick={() => setViewDate(new Date(year, month - 1, 1))}
-              className="p-1 rounded-full text-[#454652] cursor-pointer hover:bg-[#EFF4FF] hover:text-[#0b1c30]"
+              className="p-1 rounded-full text-text-secondary cursor-pointer hover:bg-info-light hover:text-text-primary"
             >
               <span className="msym text-base">chevron_left</span>
             </button>
-            <span className="text-xs font-semibold text-[#0b1c30]">
+            <span className="text-xs font-semibold text-text-primary">
               {MONTH_NAMES[month]} {year}
             </span>
             <button
               type="button"
               onClick={() => setViewDate(new Date(year, month + 1, 1))}
-              className="p-1 rounded-full text-[#454652] cursor-pointer hover:bg-[#EFF4FF] hover:text-[#0b1c30]"
+              className="p-1 rounded-full text-text-secondary cursor-pointer hover:bg-info-light hover:text-text-primary"
             >
               <span className="msym text-base">chevron_right</span>
             </button>
@@ -139,7 +139,7 @@ export function DatePicker({ value, onChange, className = '' }: DatePickerProps)
 
           <div className="grid grid-cols-7">
             {WEEKDAYS.map((wd, i) => (
-              <div key={i} className="text-center text-[9px] font-semibold text-[#767683] uppercase py-1">
+              <div key={i} className="text-center text-[9px] font-semibold text-text-muted uppercase py-1">
                 {wd}
               </div>
             ))}
@@ -160,10 +160,10 @@ export function DatePicker({ value, onChange, className = '' }: DatePickerProps)
                   }}
                   className={`h-7 w-7 mx-auto flex items-center justify-center rounded-full text-[12px] cursor-pointer ${
                     isSelected
-                      ? 'bg-[#007AFF] text-white font-semibold'
+                      ? 'bg-info text-white font-semibold'
                       : inMonth
-                        ? `text-[#0b1c30] hover:bg-[#EFF4FF] ${isToday ? 'font-bold text-[#007AFF]' : ''}`
-                        : 'text-[#C6C5D4]'
+                        ? `text-text-primary hover:bg-info-light ${isToday ? 'font-bold text-info' : ''}`
+                        : 'text-border'
                   }`}
                 >
                   {date.getDate()}
