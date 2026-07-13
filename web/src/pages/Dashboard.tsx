@@ -184,7 +184,7 @@ export function Dashboard() {
             }
           />
 
-          <SplitCard
+          {/* <SplitCard
             ring={{ trackColor: 'var(--color-neutral-light)', arc: 37.7, strokeColor: 'gradient' }}
             icon={{ name: 'content_cut', filled: true, gradient: true }}
             chip={{ label: 'Waiting on 4', variant: 'waiting' }}
@@ -200,7 +200,7 @@ export function Dashboard() {
                 <Button variant="ghost">Nudge</Button>
               </div>
             }
-          />
+          /> */}
 
           <SplitCard
             ring={{ trackColor: 'var(--color-neutral-light)', arc: 94.2, strokeColor: 'gradient' }}
@@ -235,7 +235,33 @@ export function Dashboard() {
                   </div>
                   <div className="font-mono text-[17px] font-semibold">$120.00</div>
                 </div>
-                <span className="text-xs text-success font-semibold">Complete</span>
+                <Link to="/audit-complete" className={`${buttonBaseClasses} ${buttonVariantClasses.success}`}>
+                  Complete
+                </Link>
+              </div>
+            }
+          />
+
+          <SplitCard
+            ring={{ trackColor: 'var(--color-neutral-light)', arc: 113.1, strokeColor: 'var(--color-neutral)' }}
+            icon={{ name: 'history_toggle_off', filled: true, color: 'var(--color-neutral)' }}
+            chip={{ label: 'Expired', variant: 'waiting' }}
+            title="Ski Trip Deposit"
+            subtitle="Deadline passed · all contributors refunded"
+            footer={
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
+                    Refunded
+                  </div>
+                  <div className="font-mono text-[17px] font-semibold">$860.00</div>
+                </div>
+                <Link
+                  to="/expired"
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold bg-neutral-light text-text-secondary hover:bg-neutral/20"
+                >
+                  Auto-refunded
+                </Link>
               </div>
             }
           />

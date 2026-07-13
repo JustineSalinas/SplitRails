@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react'
 
-type ButtonVariant = 'primary' | 'nudge' | 'ghost'
+type ButtonVariant = 'primary' | 'nudge' | 'ghost' | 'success'
 
 export const buttonBaseClasses =
   'inline-flex items-center gap-1.5 rounded-full cursor-pointer tracking-wide transition-[transform,box-shadow,background] duration-150'
@@ -12,6 +12,8 @@ export const buttonVariantClasses: Record<ButtonVariant, string> = {
     'bg-action-light text-action-hover hover:bg-[#FFDBCC] px-3 py-1.5 text-xs font-semibold',
   ghost:
     'bg-transparent text-text-secondary border-[0.5px] border-border hover:bg-neutral-light px-3 py-1.5 text-xs font-semibold',
+  success:
+    'bg-success-light text-success hover:bg-success/20 px-3 py-1.5 text-xs font-semibold',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
