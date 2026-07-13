@@ -36,11 +36,11 @@ export function Select({ value, options, onChange, className = '' }: SelectProps
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-2 py-2.5 px-3 border-[0.5px] border-[#C6C5D4] rounded-lg text-sm font-sans bg-white text-[#0b1c30] cursor-pointer hover:bg-[#F8F9FF] focus:outline-none focus:border-[#007AFF] focus:shadow-[0_0_0_2px_rgba(0,122,255,0.1)]"
+        className="w-full flex items-center justify-between gap-2 py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-sans bg-white text-text-primary cursor-pointer hover:bg-bg focus:outline-none focus:border-info focus:shadow-[0_0_0_2px_rgba(0,122,255,0.1)]"
       >
         <span>{value}</span>
         <span
-          className={`msym text-lg text-[#767683] transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+          className={`msym text-lg text-text-muted transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
         >
           expand_more
         </span>
@@ -49,7 +49,7 @@ export function Select({ value, options, onChange, className = '' }: SelectProps
       {open && (
         <div
           role="listbox"
-          className="absolute z-20 left-0 right-0 mt-1.5 py-1 bg-white/95 backdrop-blur-xl rounded-[14px] border-[0.5px] border-[#c6c5d4]/60 shadow-[0_12px_28px_rgba(11,28,48,0.14),0_2px_8px_rgba(11,28,48,0.06)] overflow-hidden"
+          className="absolute z-20 left-0 right-0 mt-1.5 py-1 bg-white/95 backdrop-blur-xl rounded-[14px] border-[0.5px] border-border/60 shadow-[0_12px_28px_rgba(11,28,48,0.14),0_2px_8px_rgba(11,28,48,0.06)] overflow-hidden"
         >
           {options.map((option) => {
             const selected = option === value
@@ -64,11 +64,11 @@ export function Select({ value, options, onChange, className = '' }: SelectProps
                   setOpen(false)
                 }}
                 className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-left cursor-pointer ${
-                  selected ? 'text-[#007AFF] font-semibold' : 'text-[#0b1c30] font-medium'
-                } hover:bg-[#EFF4FF]`}
+                  selected ? 'text-info font-semibold' : 'text-text-primary font-medium'
+                } hover:bg-info-light`}
               >
                 {option}
-                {selected && <span className="msym text-base text-[#007AFF]">check</span>}
+                {selected && <span className="msym text-base text-info">check</span>}
               </button>
             )
           })}

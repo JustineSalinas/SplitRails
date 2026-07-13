@@ -3,15 +3,15 @@ import { useId, type ReactNode } from 'react'
 type ChipVariant = 'action' | 'waiting' | 'done'
 
 const chipClasses: Record<ChipVariant, string> = {
-  action: 'bg-[#FFECDE] text-[#7c2e00]',
-  waiting: 'bg-[#ECEDF9] text-[#414755]',
-  done: 'bg-[#E6F4EA] text-[#1e6b3a]',
+  action: 'bg-action-light text-action-hover',
+  waiting: 'bg-neutral-light text-text-secondary',
+  done: 'bg-success-light text-success',
 }
 
 const chipDotClasses: Record<ChipVariant, string> = {
-  action: 'bg-[#C64F00]',
-  waiting: 'bg-[#717786]',
-  done: 'bg-[#34A853]',
+  action: 'bg-action',
+  waiting: 'bg-neutral',
+  done: 'bg-success',
 }
 
 interface RingProps {
@@ -90,7 +90,7 @@ function Ring({ ring, icon }: { ring: RingProps; icon: IconProps }) {
 
 export function SplitCard({ ring, icon, chip, title, subtitle, footer }: SplitCardProps) {
   return (
-    <div className="bg-white border-[0.5px] border-[#c1c6d7]/50 rounded-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_12px_24px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-200 p-5 flex flex-col gap-4">
+    <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card hover:-translate-y-0.5 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_12px_24px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-200 p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <Ring ring={ring} icon={icon} />
         <span
@@ -101,10 +101,10 @@ export function SplitCard({ ring, icon, chip, title, subtitle, footer }: SplitCa
         </span>
       </div>
       <div>
-        <h3 className="text-[17px] font-semibold m-0 mb-1 tracking-tight text-[#181c23]">{title}</h3>
-        <p className="text-[13px] text-[#414755] m-0">{subtitle}</p>
+        <h3 className="text-[17px] font-semibold m-0 mb-1 tracking-tight text-text-primary">{title}</h3>
+        <p className="text-[13px] text-text-secondary m-0">{subtitle}</p>
       </div>
-      <hr className="h-[0.5px] bg-[#c1c6d7]/50 border-none m-0" />
+      <hr className="h-[0.5px] bg-border/50 border-none m-0" />
       {footer}
     </div>
   )

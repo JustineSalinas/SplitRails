@@ -12,7 +12,7 @@ export function Avatar({
   bg,
   size = 26,
   bordered = true,
-  textColor = '#414755',
+  textColor = 'var(--color-text-secondary)',
   className = '',
 }: AvatarProps) {
   return (

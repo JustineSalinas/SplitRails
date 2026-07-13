@@ -1,8 +1,100 @@
 @import 'tailwindcss';
 
+/* ============================================
+   DESIGN TOKENS — single source of truth
+   Change a value here, it updates everywhere.
+
+   This project runs Tailwind v4 (@tailwindcss/vite, no tailwind.config.js),
+   so tokens live in one @theme block instead of a separate JS config file.
+   Every var below auto-generates matching utilities, e.g.:
+     --color-action        -> bg-action / text-action / border-action
+     --color-action-light  -> bg-action-light / text-action-light
+     --color-text-primary  -> text-text-primary / bg-text-primary (see note below)
+     --background-image-*  -> bg-gradient-brand / bg-gradient-action / ...
+   ============================================ */
 @theme {
+  /* ---------- BRAND / SEMANTIC COLORS ---------- */
+  /* Orange = "needs action / urgent" across the whole app.
+     Do not reuse this hue for anything else (charts, decoration, etc). */
+  --color-action: #ea580c;
+  --color-action-light: #ffedd5;
+  --color-action-hover: #c2410c;
+
+  /* Blue = links, informational, "you're owed" */
+  --color-info: #2563eb;
+  --color-info-light: #dbeafe;
+
+  /* Green = success / settled / paid */
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+
+  /* Neutral / waiting states */
+  --color-neutral: #64748b;
+  --color-neutral-light: #f1f5f9;
+
+  /* ---------- BASE / SURFACE COLORS ---------- */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+
+  /* ---------- TEXT COLORS ---------- */
+  /* NOTE: naming these "text-primary/secondary/muted" under the --color-*
+     namespace makes Tailwind generate `text-text-primary`, `bg-text-primary`,
+     etc. (the "text-text-" repetition is a byproduct of the token name
+     itself, not a mistake) — matches the nested colors.text.{primary,...}
+     structure from the original tailwind.config.js spec. */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+
+  /* ---------- CHART / DATA-VIZ PALETTE ----------
+     Kept deliberately separate from --color-action
+     so charts never accidentally read as "urgent" */
+  --color-chart-1: #3b82f6;
+  --color-chart-2: #8b5cf6;
+  --color-chart-3: #0f172a;
+  --color-chart-4: #64748b;
+
+  /* ---------- TYPOGRAPHY ---------- */
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'Geist', ui-monospace, monospace;
+
+  --text-h1: 2.5rem;
+  --text-h2: 1.5rem;
+  --text-h3: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-label: 0.75rem;
+
+  /* font-weight-bold/semibold/regular intentionally omitted: Tailwind's
+     built-in font-bold/font-semibold/font-normal already resolve to
+     700/600/400, so a duplicate token would just alias the defaults. */
+
+  /* ---------- SPACING / RADIUS ---------- */
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06);
+
+}
+
+/* ---------- GRADIENTS ----------
+   Declared as plain vars (not inside @theme) so they can be referenced
+   directly from inline styles/JS via var(--gradient-brand), e.g. for
+   avatar swatches that need a real background-image value, not a class.
+   The --background-image-* block below just points Tailwind's
+   bg-gradient-* utilities at these same vars — one recipe, two consumers. */
+:root {
+  --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --gradient-action: linear-gradient(135deg, var(--color-action) 0%, #f97316 100%);
+  --gradient-success: linear-gradient(135deg, var(--color-success) 0%, #22c55e 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+@theme {
+  --background-image-gradient-brand: var(--gradient-brand);
+  --background-image-gradient-action: var(--gradient-action);
+  --background-image-gradient-success: var(--gradient-success);
+  --background-image-gradient-surface: var(--gradient-surface);
 }
 
 body {
@@ -30,7 +122,7 @@ body {
 }
 
 .accent-grad-text {
-  background: linear-gradient(135deg, #007aff 0%, #00c7be 100%);
+  background: var(--gradient-brand);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
