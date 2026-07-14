@@ -18,39 +18,39 @@ interface EscrowPosition {
 const ESCROWS: EscrowPosition[] = [
   {
     id: 1,
-    icon: 'content_cut',
+    icon: 'payments',
     iconFilled: true,
     iconBgClass: 'bg-gradient-brand',
     iconColorClass: 'text-white',
-    title: 'Aspen Ski Trip',
+    title: 'Client Retainer — Q3',
     chip: { label: 'Pay now', className: 'bg-action text-white' },
     hash: '0x71c4…a4f2',
-    amount: '$204.00',
+    amount: '$2,040.00',
     meta: 'Closes in 3h 12m',
     metaClass: 'text-action font-bold',
   },
   {
     id: 2,
-    icon: 'shopping_cart',
+    icon: 'design_services',
     iconBgClass: 'bg-neutral-light',
     iconColorClass: 'text-text-secondary',
-    title: 'Weekly Groceries',
+    title: 'Figma + Linear — Team Seats',
     chip: { label: 'Waiting on 2', className: 'bg-neutral-light text-text-secondary' },
     hash: '0x0a5d…3e91',
-    amount: '$42.10',
+    amount: '$421.00',
     meta: 'Closes in 2d 6h',
     metaClass: 'text-text-muted',
   },
   {
     id: 3,
-    icon: 'restaurant',
+    icon: 'cloud',
     iconFilled: true,
     iconBgClass: 'bg-success-light',
     iconColorClass: 'text-success',
-    title: 'Dinner at Nobu',
+    title: 'AWS Infrastructure — August',
     chip: { label: 'Settled', className: 'bg-success-light text-success', dotIcon: 'check_circle' },
     hash: '0x7a2c…f8e1',
-    amount: '$470.00',
+    amount: '$1,410.00',
     meta: 'Released to vendor',
     metaClass: 'text-text-muted',
   },
@@ -158,13 +158,13 @@ export function Vault() {
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">
               Currently locked
             </div>
-            <span className="font-mono accent-grad-text text-[28px] font-bold tracking-tight">$1,712.00</span>
+            <span className="font-mono accent-grad-text text-[28px] font-bold tracking-tight">$6,850.00</span>
           </div>
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-5">
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">
               Pending payment
             </div>
-            <span className="font-mono text-action text-[28px] font-bold tracking-tight">$204.00</span>
+            <span className="font-mono text-action text-[28px] font-bold tracking-tight">$2,040.00</span>
           </div>
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-5">
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">

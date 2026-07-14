@@ -22,8 +22,8 @@ const participants: SentParticipant[] = [
   { id: 4, name: 'Theo Rowe', avatarBg: '#5c5f61', initials: 'TR', status: 'notified' },
 ]
 
-const total = 452
-const shareLink = 'splitrails.co/s/office-dinner-9x2f'
+const total = 4850
+const shareLink = 'splitrails.co/s/aws-infra-q3'
 
 export function SentSuccess() {
   const navigate = useNavigate()
@@ -44,7 +44,7 @@ export function SentSuccess() {
   function shareGeneric() {
     const url = `https://${shareLink}`
     if (navigator.share) {
-      navigator.share({ title: 'SplitRails payment request', text: 'Pay your share for Office Dinner', url }).catch(() => {})
+      navigator.share({ title: 'SplitRails payment request', text: 'Pay your share for AWS + Design Tools — Q3', url }).catch(() => {})
     } else {
       if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {})
       showToast('Link copied — paste to share')
@@ -66,14 +66,14 @@ export function SentSuccess() {
 
   function shareWhatsapp() {
     window.open(
-      `https://wa.me/?text=${encodeURIComponent(`Pay your share for Office Dinner: https://${shareLink}`)}`,
+      `https://wa.me/?text=${encodeURIComponent(`Pay your share for AWS + Design Tools — Q3: https://${shareLink}`)}`,
       '_blank',
     )
   }
 
   function shareEmail() {
     window.open(
-      `mailto:?subject=${encodeURIComponent('Your share for Office Dinner')}&body=${encodeURIComponent(`Pay your share here: https://${shareLink}`)}`,
+      `mailto:?subject=${encodeURIComponent('Your share for AWS + Design Tools — Q3')}&body=${encodeURIComponent(`Pay your share here: https://${shareLink}`)}`,
       '_blank',
     )
   }
@@ -88,7 +88,7 @@ export function SentSuccess() {
           </div>
           <h1 className="text-[28px] font-bold tracking-tight m-0 mb-2">Request sent!</h1>
           <p className="text-text-secondary text-[15px] m-0 leading-[1.5]">
-            Alex, Mia and Theo have been notified. Funds go to Sora Restaurant once all 4 shares are collected.
+            Alex, Mia and Theo have been notified. Funds go to Amazon Web Services once all 4 shares are collected.
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export function SentSuccess() {
           <div className="flex items-center justify-between gap-4 mb-1">
             <div>
               <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
-                Office Dinner
+                AWS + Design Tools — Q3
               </div>
               <div className="text-xl font-bold tracking-tight">
                 ${total.toFixed(2)} <span className="text-[13px] font-medium text-text-secondary">total · 4 ways</span>

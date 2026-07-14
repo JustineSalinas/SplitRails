@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useWallet } from '../context/WalletContext'
 
 interface ProfileFields {
   name: string
@@ -30,6 +31,8 @@ function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 }
 
 export function Profile() {
+  const navigate = useNavigate()
+  const { disconnect } = useWallet()
   const [saved, setSaved] = useState<ProfileFields>({
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -224,15 +227,19 @@ export function Profile() {
 
             <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-6 flex items-center justify-between flex-wrap gap-3">
               <div>
-                <div className="text-sm font-bold text-action">Log out</div>
-                <div className="text-xs text-text-muted">End your session on this device</div>
+                <div className="text-sm font-bold text-action">Disconnect wallet</div>
+                <div className="text-xs text-text-muted">Forget this wallet on this device</div>
               </div>
-              <Link
-                to="/login"
+              <button
+                type="button"
+                onClick={() => {
+                  disconnect()
+                  navigate('/')
+                }}
                 className="bg-action text-white border-none py-2.5 px-4.5 rounded-full text-[13px] font-bold cursor-pointer shadow-[0_2px_8px_rgba(232,99,10,0.25)] hover:shadow-[0_4px_14px_rgba(232,99,10,0.35)]"
               >
-                Log out
-              </Link>
+                Disconnect
+              </button>
             </div>
           </div>
         </div>

@@ -18,15 +18,15 @@ interface HashEvent {
 }
 
 const contributions: Contribution[] = [
-  { id: 1, name: 'You (John)', initials: 'JD', avatarBg: '#007AFF', amount: 470 },
-  { id: 2, name: 'Alex Rivera', initials: 'AR', avatarBg: '#007AFF', amount: 450 },
-  { id: 3, name: 'Sarah Chen', initials: 'SC', avatarBg: '#00C7BE', amount: 320 },
+  { id: 1, name: 'You (John)', initials: 'JD', avatarBg: '#007AFF', amount: 1410 },
+  { id: 2, name: 'Alex Rivera', initials: 'AR', avatarBg: '#007AFF', amount: 1350 },
+  { id: 3, name: 'Sarah Chen', initials: 'SC', avatarBg: '#00C7BE', amount: 960 },
 ]
 
-const TOTAL_SETTLED = 1240
-const GOAL = 1850
+const TOTAL_SETTLED = 3720
+const GOAL = 5550
 const PARTICIPANTS = 5
-const VENDOR = 'CloudKitchens Co.'
+const VENDOR = 'Amazon Web Services'
 
 function CopyHash({ hash }: HashEvent) {
   const [copied, setCopied] = useState(false)
@@ -115,7 +115,7 @@ export function AuditLedger() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'dinner-at-nobu-ledger.csv'
+    a.download = 'aws-infra-q3-ledger.csv'
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -135,7 +135,7 @@ export function AuditLedger() {
                 Split Ledger
               </span>
             </nav>
-            <h1 className="text-[32px] font-bold tracking-tight m-0 mb-1.5">Dinner at Nobu</h1>
+            <h1 className="text-[32px] font-bold tracking-tight m-0 mb-1.5">AWS Infrastructure — August</h1>
             <div className="flex items-center gap-2.5">
               <span
                 className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-bold ${badge?.className ?? 'bg-success-light text-success'}`}
@@ -247,7 +247,7 @@ export function AuditLedger() {
                     <span className="font-mono text-xs text-text-muted">Oct 22, 09:04</span>
                   </div>
                   <p className="text-[13px] text-text-secondary mt-0.5 mb-0">
-                    You created "Dinner at Nobu" with a goal of $1,850.00.
+                    You created "AWS Infrastructure — August" with a goal of $5,550.00.
                   </p>
                 </div>
               </div>
@@ -275,7 +275,7 @@ export function AuditLedger() {
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold">Alex Rivera locked $450.00</span>
+                    <span className="text-sm font-bold">Alex Rivera locked $1,350.00</span>
                     <span className="font-mono text-xs text-text-muted">Oct 23, 18:41</span>
                   </div>
                   <CopyHash hash="0x71c...a4f2" />
@@ -289,7 +289,7 @@ export function AuditLedger() {
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold">Sarah Chen locked $320.00</span>
+                    <span className="text-sm font-bold">Sarah Chen locked $960.00</span>
                     <span className="font-mono text-xs text-text-muted">Oct 24, 08:12</span>
                   </div>
                   <CopyHash hash="0x92b...3e91" />
@@ -303,7 +303,7 @@ export function AuditLedger() {
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold">You locked $470.00</span>
+                    <span className="text-sm font-bold">You locked $1,410.00</span>
                     <span className="font-mono text-xs text-text-muted">Oct 24, 13:58</span>
                   </div>
                   <CopyHash hash="0x7a2...f8e1" />
@@ -320,7 +320,7 @@ export function AuditLedger() {
                     <span className="font-mono text-xs text-text-muted">Oct 24, 14:32</span>
                   </div>
                   <p className="text-[13px] text-text-secondary mt-0.5 mb-0">
-                    $1,240.00 sent to CloudKitchens Co.
+                    $3,720.00 sent to Amazon Web Services.
                   </p>
                 </div>
               </div>

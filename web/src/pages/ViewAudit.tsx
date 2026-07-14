@@ -10,7 +10,7 @@ import {
   settleShare,
 } from '../lib/escrow'
 
-const GOAL = 1850
+const GOAL = 5550
 const CLOSES_IN_SECONDS = 8 * 60 + 28
 const LIVE_AVATAR_COLORS = ['#007AFF', '#00C7BE', '#7A5AF8', '#FF9500', '#5c5f61', '#263143']
 
@@ -26,10 +26,10 @@ interface Participant {
 }
 
 const initialParticipants: Participant[] = [
-  { id: 1, name: 'Alex Rivera', initials: 'AR', avatarBg: '#007AFF', amount: 450, locked: true, joined: true },
-  { id: 2, name: 'Sarah Chen', initials: 'SC', avatarBg: '#00C7BE', amount: 320, locked: true, joined: true },
+  { id: 1, name: 'Alex Rivera', initials: 'AR', avatarBg: '#007AFF', amount: 1350, locked: true, joined: true },
+  { id: 2, name: 'Sarah Chen', initials: 'SC', avatarBg: '#00C7BE', amount: 960, locked: true, joined: true },
   { id: 3, name: 'Jordan Smith', initials: 'JS', avatarBg: '#7A5AF8', locked: false, joined: true },
-  { id: 4, name: 'You (John)', initials: 'JD', avatarBg: '#E3E2E7', amount: 470, isMe: true, locked: false, joined: true },
+  { id: 4, name: 'You (John)', initials: 'JD', avatarBg: '#E3E2E7', amount: 1410, isMe: true, locked: false, joined: true },
   { id: 5, name: 'Taylor W.', initials: '?', avatarBg: '#ECEDF9', locked: false, joined: false },
 ]
 
@@ -150,11 +150,11 @@ export function ViewAudit() {
           <div>
             <nav className="flex items-center gap-1.5 mb-2">
               <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
-                Active Pie
+                Active Split
               </span>
               <span className="msym text-sm text-text-muted">chevron_right</span>
               <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary">
-                Dinner at Nobu
+                AWS Infrastructure — August
               </span>
             </nav>
             <h1 className="text-[32px] font-bold tracking-tight m-0 mb-1.5">Settlement in progress…</h1>

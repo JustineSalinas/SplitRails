@@ -7,14 +7,14 @@ const FULL_HASH = '0x7a2c9e4f1b8d6a3c5e7f9b2d4a6c8e0f2a4c6e8b0d2f4a6c8e0f2a4c6e8
 
 export function AuditComplete() {
   const [expanded, setExpanded] = useState(false)
-// /testing
+
   function handleDownloadReceipt() {
     const receipt = [
       'SplitRails Receipt',
       '-------------------',
-      'Vendor: CloudKitchens Co.',
+      'Vendor: Amazon Web Services',
       'Date: Oct 24, 2023 • 14:32',
-      'Total contribution: $1,248.50',
+      'Total contribution: $3,745.50',
       `Transaction hash: ${FULL_HASH}`,
     ].join('\n')
     const blob = new Blob([receipt], { type: 'text/plain' })
@@ -43,7 +43,7 @@ export function AuditComplete() {
           </div>
           <h1 className="text-[34px] font-bold tracking-tight m-0 mb-2">Split completed</h1>
           <p className="text-[15px] text-text-secondary m-0">
-            The settlement for <strong className="text-text-primary">CloudKitchens Co.</strong> has been finalized
+            The settlement for <strong className="text-text-primary">Amazon Web Services</strong> has been finalized
             and transferred.
           </p>
         </div>
@@ -61,7 +61,7 @@ export function AuditComplete() {
               <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2">
                 Total contribution
               </div>
-              <div className="text-[40px] font-bold tracking-tight">$1,248.50</div>
+              <div className="text-[40px] font-bold tracking-tight">$3,745.50</div>
             </div>
           </div>
 
@@ -72,7 +72,7 @@ export function AuditComplete() {
 
               <div className="flex items-center justify-between py-4">
                 <span className="text-sm text-text-secondary">Vendor</span>
-                <span className="text-sm font-bold">CloudKitchens Co.</span>
+                <span className="text-sm font-bold">Amazon Web Services</span>
               </div>
               <hr className="h-[0.5px] bg-border/50 border-none" />
               <div className="flex items-center justify-between py-4">

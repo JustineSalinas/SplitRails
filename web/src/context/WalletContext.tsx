@@ -6,6 +6,7 @@ interface WalletState {
   connecting: boolean
   error: string | null
   connect: () => Promise<void>
+  disconnect: () => void
 }
 
 const WalletContext = createContext<WalletState | null>(null)
@@ -46,7 +47,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const value = useMemo(() => ({ address, connecting, error, connect }), [address, connecting, error, connect])
+  // Freighter itself has no dApp-initiated "disconnect" — access, once granted, stays
+  // granted at the extension level until the user revokes it there. This just forgets
+  // the address locally so the app shows "Connect wallet" again.
+  const disconnect = useCallback(() => {
+    setAddress(null)
+    setError(null)
+  }, [])
+
+  const value = useMemo(
+    () => ({ address, connecting, error, connect, disconnect }),
+    [address, connecting, error, connect, disconnect],
+  )
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
 }

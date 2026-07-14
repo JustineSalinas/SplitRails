@@ -58,11 +58,11 @@ export function PaySlice() {
                     Group expense
                   </div>
                   <h1 className="text-[34px] font-bold tracking-tight m-0 mb-2 leading-[1.1]">
-                    Weekend Cabin Retreat
+                    Q3 Client Infrastructure &amp; Tooling
                   </h1>
                   <p className="text-text-secondary text-sm m-0 max-w-[380px]">
                     Collection organized by <strong className="text-text-primary">Alex Rivera</strong> for
-                    accommodation and shared provisions.
+                    shared AWS, design, and API costs.
                   </p>
                 </div>
                 <div className="text-right shrink-0">
@@ -81,7 +81,7 @@ export function PaySlice() {
               {/* Progress */}
               <div className="flex items-end justify-between mb-2">
                 <div className="font-mono accent-grad-text text-2xl font-bold tracking-tight">
-                  $1,850.00 <span className="font-mono text-text-secondary font-medium text-sm">/ $2,400.00</span>
+                  $5,550.00 <span className="font-mono text-text-secondary font-medium text-sm">/ $7,200.00</span>
                 </div>
                 <div className="text-[13px] font-bold">77% collected</div>
               </div>
@@ -110,7 +110,7 @@ export function PaySlice() {
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-0.5">
                     Bill reference
                   </div>
-                  <div className="font-mono text-sm font-semibold">#CAB-2024-089</div>
+                  <div className="font-mono text-sm font-semibold">#AWS-Q3-0714</div>
                 </div>
               </div>
               <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-4.5 flex items-center gap-3.5">
@@ -154,9 +154,9 @@ export function PaySlice() {
               </div>
 
               <div className="mb-7">
-                <div className="text-[44px] font-bold tracking-tight leading-none">$360.00</div>
+                <div className="text-[44px] font-bold tracking-tight leading-none">$1,080.00</div>
                 <p className="text-[13px] text-text-secondary mt-2.5 mb-0">
-                  Includes shared groceries &amp; cabin cleaning fee
+                  Includes AWS compute, S3 storage &amp; Figma seats
                 </p>
               </div>
 
@@ -184,11 +184,11 @@ export function PaySlice() {
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 mt-5">
               <div className="flex items-center justify-between py-2">
                 <span className="text-xs text-text-secondary">Billed in JPY</span>
-                <span className="font-mono text-xs text-text-primary">¥54,320</span>
+                <span className="font-mono text-xs text-text-primary">¥163,080</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-xs text-text-secondary">Charged in USD</span>
-                <span className="font-mono text-xs font-bold text-text-primary">$360.00</span>
+                <span className="font-mono text-xs font-bold text-text-primary">$1,080.00</span>
               </div>
               <hr className="h-[0.5px] bg-border/50 border-none my-1" />
               <div className="flex items-center justify-between py-2">
@@ -215,7 +215,7 @@ export function PaySlice() {
               <Avatar initials="JS" bg="#007AFF" textColor="white" size={40} bordered={false} />
               <div>
                 <div className="text-[13px] font-semibold">
-                  Jordan S. paid <span className="accent-grad-text font-bold">$240</span>
+                  Jordan S. paid <span className="accent-grad-text font-bold">$720</span>
                 </div>
                 <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mt-0.5">
                   2 hours ago

@@ -29,7 +29,7 @@ const mockParticipants: ReviewParticipant[] = [
     avatarBg: GRADIENT,
     donutColor: 'gradient',
     initials: 'RM',
-    amount: 113,
+    amount: 1212.5,
     percent: 25,
     subtitle: 'Will pay from Chase ••••4821',
     badge: 'organizer',
@@ -41,7 +41,7 @@ const mockParticipants: ReviewParticipant[] = [
     avatarBg: '#FF9500',
     donutColor: 'var(--color-chart-2)',
     initials: 'AS',
-    amount: 113,
+    amount: 1212.5,
     percent: 25,
     subtitle: 'alex@rails.co · Apple Pay',
     badge: 'locked',
@@ -52,7 +52,7 @@ const mockParticipants: ReviewParticipant[] = [
     name: 'Mia Kwon',
     avatarBg: '#263143',
     initials: 'MK',
-    amount: 113,
+    amount: 1212.5,
     percent: 25,
     subtitle: 'mia.k@rails.co · Bank transfer',
     hasPaymentMethod: true,
@@ -62,14 +62,14 @@ const mockParticipants: ReviewParticipant[] = [
     name: 'Theo Rowe',
     avatarBg: '#5c5f61',
     initials: 'TR',
-    amount: 113,
+    amount: 1212.5,
     percent: 25,
     subtitle: 'theo@rails.co · No method set',
     hasPaymentMethod: false,
   },
 ]
 
-const shareLink = 'splitrails.co/s/office-dinner'
+const shareLink = 'splitrails.co/s/aws-infra-q3'
 
 export function ReviewSplit() {
   const navigate = useNavigate()
@@ -97,7 +97,7 @@ export function ReviewSplit() {
     }))
   }, [draft])
 
-  const total = draft?.total ?? 452
+  const total = draft?.total ?? 4850
   const missingMethod = participants.find((p) => !p.hasPaymentMethod)
 
   async function handleSend() {
@@ -204,10 +204,10 @@ export function ReviewSplit() {
                     Paying to
                   </div>
                   <div className="text-[22px] font-bold tracking-tight font-mono">
-                    {draft ? truncateAddress(draft.vendorAddress) : 'Sora Restaurant'}
+                    {draft ? truncateAddress(draft.vendorAddress) : 'Amazon Web Services'}
                   </div>
                   <div className="text-[13px] text-text-secondary mt-0.5">
-                    {draft?.label ?? 'Office Dinner'} · {draft ? draft.dueDate : 'Jul 12, 2026'}
+                    {draft?.label ?? 'AWS + Design Tools — Q3'} · {draft ? draft.dueDate : 'Jul 12, 2026'}
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-success tracking-tight shrink-0">
@@ -426,7 +426,7 @@ export function ReviewSplit() {
             <div className="flex justify-between text-[13px]">
               <span className="text-text-secondary">Paying to</span>
               <span className="font-semibold text-text-primary font-mono">
-                {draft ? truncateAddress(draft.vendorAddress) : 'Sora Restaurant'}
+                {draft ? truncateAddress(draft.vendorAddress) : 'Amazon Web Services'}
               </span>
             </div>
             <div className="flex justify-between text-[13px]">

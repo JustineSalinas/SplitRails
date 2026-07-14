@@ -12,8 +12,8 @@ export function SliceLocked() {
     const receipt = [
       'SplitRails Receipt',
       '-------------------',
-      'Split: Weekend Cabin Retreat',
-      'Slice amount: $142.50',
+      'Split: Q3 Client Infrastructure & Tooling',
+      'Slice amount: $427.50',
       `Transaction hash: ${FULL_HASH}`,
       'Settlement: Instant lock',
     ].join('\n')
@@ -120,7 +120,7 @@ export function SliceLocked() {
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">
               Slice amount
             </div>
-            <div className="text-2xl font-bold tracking-tight">$142.50</div>
+            <div className="text-2xl font-bold tracking-tight">$427.50</div>
           </div>
           <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 text-left">
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">

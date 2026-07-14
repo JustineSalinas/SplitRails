@@ -58,7 +58,7 @@ const participants: RefundedParticipant[] = [
     initials: 'JS',
     avatarBg: '#E3E2E7',
     avatarTextColor: '#414755',
-    amount: 500,
+    amount: 1500,
     walletHash: '0x71C...a4f2',
     refunded: true,
   },
@@ -68,7 +68,7 @@ const participants: RefundedParticipant[] = [
     initials: 'AM',
     avatarBg: '#C6C6CB',
     avatarTextColor: '#1a1b1f',
-    amount: 340,
+    amount: 1020,
     walletHash: '0x92B...3e91',
     refunded: true,
   },
@@ -78,12 +78,12 @@ const participants: RefundedParticipant[] = [
     initials: 'RK',
     avatarBg: '#ECEDF9',
     avatarTextColor: 'var(--color-text-muted)',
-    amount: 1160,
+    amount: 3480,
     refunded: false,
   },
 ]
 
-const ORIGINAL_GOAL = 2000
+const ORIGINAL_GOAL = 6000
 
 export function SplitExpired() {
   const { address, connecting, error: walletError, connect } = useWallet()

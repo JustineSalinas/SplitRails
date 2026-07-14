@@ -44,7 +44,7 @@ const initialParticipants: Participant[] = [
     isPayer: true,
     initials: 'RM',
     address: '',
-    amount: 113,
+    amount: 1212.5,
     locked: false,
     paid: true,
     removable: false,
@@ -57,7 +57,7 @@ const initialParticipants: Participant[] = [
     donutColor: '#5E5CE6',
     initials: 'AS',
     address: '',
-    amount: 113,
+    amount: 1212.5,
     locked: false,
     removable: true,
   },
@@ -69,7 +69,7 @@ const initialParticipants: Participant[] = [
     donutColor: '#0EA5A5',
     initials: 'MK',
     address: '',
-    amount: 113,
+    amount: 1212.5,
     locked: false,
     removable: true,
   },
@@ -81,7 +81,7 @@ const initialParticipants: Participant[] = [
     donutColor: '#8E8E93',
     initials: 'TR',
     address: '',
-    amount: 113,
+    amount: 1212.5,
     locked: false,
     removable: true,
   },
@@ -114,11 +114,11 @@ function splitEvenly(list: Participant[], total: number): Participant[] {
 export function SplitCreator() {
   const navigate = useNavigate()
   const { address: myAddress, connecting, error: walletError, connect } = useWallet()
-  const [totalInput, setTotalInput] = useState('452.00')
+  const [totalInput, setTotalInput] = useState('4850.00')
   const [method, setMethod] = useState<SplitMethod>('equal')
   const [participants, setParticipants] = useState<Participant[]>(initialParticipants)
-  const [label, setLabel] = useState('Office Dinner')
-  const [category, setCategory] = useState('Food & drink')
+  const [label, setLabel] = useState('AWS + Design Tools — Q3')
+  const [category, setCategory] = useState('Software & infra')
   const [dueDate, setDueDate] = useState('2026-07-20')
   const [autoNudge, setAutoNudge] = useState('After 3 days overdue')
   const [vendorAddress, setVendorAddress] = useState('')
@@ -303,7 +303,7 @@ export function SplitCreator() {
           </div>
           <div className="flex gap-2 justify-center mt-5 flex-wrap items-center">
             <span className="text-base text-text-secondary font-bold mr-1">Quick add:</span>
-            {[25, 50, 100, 250].map((amount) => (
+            {[250, 500, 1000, 2500].map((amount) => (
               <button
                 key={amount}
                 type="button"
@@ -532,7 +532,7 @@ export function SplitCreator() {
                     type="text"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    placeholder="e.g. Dinner at Sora"
+                    placeholder="e.g. AWS Infrastructure — August"
                     className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-sans outline-none"
                   />
                 </div>
@@ -543,7 +543,7 @@ export function SplitCreator() {
                   <Select
                     value={category}
                     onChange={setCategory}
-                    options={['Food & drink', 'Travel', 'Housing', 'Entertainment']}
+                    options={['Software & infra', 'Contractor payout', 'Travel', 'Office & equipment']}
                   />
                 </div>
                 <div>
