@@ -32,6 +32,23 @@ wired into the contract account model and does not authorize on-chain actions.
 
 ---
 
+## 📋 Submission
+
+### 1. Project information
+| Item | Link |
+|---|---|
+| Project Description | _submitted directly on the Rise In platform_ |
+| GitHub Repository | [github.com/JustineSalinas/SplitRails](https://github.com/JustineSalinas/SplitRails) (this repo) |
+| Video Demo | _link added here before the Jul 15 submission_ |
+| Presentation (PPT) | _link added here before the Jul 15 submission_ |
+
+### 2. Repository requirements
+- ☑ Repository is **public**
+- ☑ Clear documentation (this README + [`docs/`](docs/))
+- ☑ Deployed contract address in this README (see table above)
+
+---
+
 ## What's in this repo
 
 | Path | What it is | Owner |
