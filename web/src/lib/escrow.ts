@@ -40,6 +40,7 @@ export async function initEscrow(
 ) {
   const client = getEscrowClient(publicKey)
   const tx = await client.init({
+    creator: publicKey,
     vendor: params.vendor,
     token: params.token,
     deadline: params.deadline,

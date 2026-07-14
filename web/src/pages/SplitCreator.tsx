@@ -196,6 +196,13 @@ export function SplitCreator() {
       return original && p.id === original.id && p.amount === original.amount && p.locked === original.locked
     })
 
+  // The escrow contract has no dedup check on its shares list — a duplicate
+  // participant address permanently deadlocks the escrow (their combined
+  // amount counts toward total_required, but only the last entry is ever
+  // settleable). Catch it here before it can ever reach init().
+  const participantAddresses = participants.map((p) => participantAddress(p).trim())
+  const hasDuplicateAddresses = new Set(participantAddresses.filter(Boolean)).size !== participantAddresses.filter(Boolean).length
+
   const reviewError = !balanced
     ? `Shares must add up to $${total.toFixed(2)}`
     : !isValidStellarAddress(vendorAddress)
@@ -204,9 +211,11 @@ export function SplitCreator() {
         ? 'Enter a valid token contract address'
         : participants.some((p) => !isValidStellarAddress(participantAddress(p)))
           ? 'Every participant needs a valid Stellar address'
-          : !dueDate
-            ? 'Set a payment due date'
-            : null
+          : hasDuplicateAddresses
+            ? 'Each participant needs a unique address — a duplicate would lock the escrow'
+            : !dueDate
+              ? 'Set a payment due date'
+              : null
   const reviewReady = reviewError === null
 
   function handleReview() {

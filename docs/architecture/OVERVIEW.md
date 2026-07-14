@@ -10,7 +10,7 @@ Your React frontend (Earl)
         │ uses
 Stellar JS SDK ───────────────► Horizon (query/read the ledger)
         │                        and Soroban RPC (call/simulate contracts)
-Escrow + smart-wallet contracts (Rust — Theodore)
+Escrow contract (Rust — Theodore)
         │ deployed to
 The Stellar network (testnet during the hackathon)
         ↕
@@ -37,8 +37,8 @@ Anchors (SEP-24/31) — the bridge to real-world PHP/VND/IDR bank rails (Llarie,
   escrow pitch is trustworthy (not even our team can move held funds).
 - **Deployed contracts generally can't be edited.** So the escrow logic must be small and carefully
   tested before deploy. Resist scope creep.
-- **Every action costs a tiny fee and must be signed.** That's the entire reason wallets and biometric
-  signing exist — something must prove *you* authorized *this specific action*.
+- **Every action costs a tiny fee and must be signed.** That's the entire reason wallets and one-tap
+  approval exist — something must prove *you* authorized *this specific action*.
 - **Testnet exists to be reckless on.** Fake money, resets periodically. The answer to "am I on
   testnet?" should always be yes until the hackathon is over. **Never touch mainnet.**
 

@@ -8,7 +8,7 @@
 ## Deployed addresses (testnet) — ⭐ keep in sync with root README
 | Contract | Address | Deployed |
 |---|---|---|
-| escrow | `CCXBJ3ZDLFHO4HZN3ODZTHFLLWAEYELN6V5QMUBNFUS3PBFYLBWSZQVI` | ☑ |
+| escrow | `CDENUPG5EBM6ZCTOH7UVJMDHDLS4ZWABMUJFIV42LKEPYVFVPKO2P3IH` | ☑ |
 | smart-wallet | N/A — dropped for this sprint, see below | ☐ |
 
 ## Layout

@@ -24,7 +24,7 @@ if (typeof window !== "undefined") {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CCXBJ3ZDLFHO4HZN3ODZTHFLLWAEYELN6V5QMUBNFUS3PBFYLBWSZQVI",
+    contractId: "CDENUPG5EBM6ZCTOH7UVJMDHDLS4ZWABMUJFIV42LKEPYVFVPKO2P3IH",
   }
 } as const
 
@@ -47,8 +47,12 @@ export interface Client {
    * Opens an invoice: vendor, token (USDC SAC), deadline, and each
    * participant's exact share. `total_required` must equal the sum of
    * `shares` — a mismatch means the off-chain split has a rounding bug.
+   * `creator` must authorize this call — without it, anyone who knows the
+   * (not-yet-initialized) contract ID could front-run the real invoice
+   * setup, and since `init` is one-shot that would permanently brick the
+   * instance.
    */
-  init: ({vendor, token, deadline, total_required, shares}: {vendor: string, token: string, deadline: u64, total_required: i128, shares: Array<readonly [string, i128]>}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  init: ({creator, vendor, token, deadline, total_required, shares}: {creator: string, vendor: string, token: string, deadline: u64, total_required: i128, shares: Array<readonly [string, i128]>}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
    * Construct and simulate a expire transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -115,7 +119,7 @@ export class Client extends ContractClient {
   public readonly options: ContractClientOptions;
   constructor(options: ContractClientOptions) {
     super(
-      new ContractSpec([ "AAAAAAAAAMZPcGVucyBhbiBpbnZvaWNlOiB2ZW5kb3IsIHRva2VuIChVU0RDIFNBQyksIGRlYWRsaW5lLCBhbmQgZWFjaApwYXJ0aWNpcGFudCdzIGV4YWN0IHNoYXJlLiBgdG90YWxfcmVxdWlyZWRgIG11c3QgZXF1YWwgdGhlIHN1bSBvZgpgc2hhcmVzYCDigJQgYSBtaXNtYXRjaCBtZWFucyB0aGUgb2ZmLWNoYWluIHNwbGl0IGhhcyBhIHJvdW5kaW5nIGJ1Zy4AAAAAAARpbml0AAAABQAAAAAAAAAGdmVuZG9yAAAAAAATAAAAAAAAAAV0b2tlbgAAAAAAABMAAAAAAAAACGRlYWRsaW5lAAAABgAAAAAAAAAOdG90YWxfcmVxdWlyZWQAAAAAAAsAAAAAAAAABnNoYXJlcwAAAAAD6gAAA+0AAAACAAAAEwAAAAsAAAABAAAD6QAAA+0AAAAAAAAAAw==",
+      new ContractSpec([ "AAAAAAAAAaBPcGVucyBhbiBpbnZvaWNlOiB2ZW5kb3IsIHRva2VuIChVU0RDIFNBQyksIGRlYWRsaW5lLCBhbmQgZWFjaApwYXJ0aWNpcGFudCdzIGV4YWN0IHNoYXJlLiBgdG90YWxfcmVxdWlyZWRgIG11c3QgZXF1YWwgdGhlIHN1bSBvZgpgc2hhcmVzYCDigJQgYSBtaXNtYXRjaCBtZWFucyB0aGUgb2ZmLWNoYWluIHNwbGl0IGhhcyBhIHJvdW5kaW5nIGJ1Zy4KYGNyZWF0b3JgIG11c3QgYXV0aG9yaXplIHRoaXMgY2FsbCDigJQgd2l0aG91dCBpdCwgYW55b25lIHdobyBrbm93cyB0aGUKKG5vdC15ZXQtaW5pdGlhbGl6ZWQpIGNvbnRyYWN0IElEIGNvdWxkIGZyb250LXJ1biB0aGUgcmVhbCBpbnZvaWNlCnNldHVwLCBhbmQgc2luY2UgYGluaXRgIGlzIG9uZS1zaG90IHRoYXQgd291bGQgcGVybWFuZW50bHkgYnJpY2sgdGhlCmluc3RhbmNlLgAAAARpbml0AAAABgAAAAAAAAAHY3JlYXRvcgAAAAATAAAAAAAAAAZ2ZW5kb3IAAAAAABMAAAAAAAAABXRva2VuAAAAAAAAEwAAAAAAAAAIZGVhZGxpbmUAAAAGAAAAAAAAAA50b3RhbF9yZXF1aXJlZAAAAAAACwAAAAAAAAAGc2hhcmVzAAAAAAPqAAAD7QAAAAIAAAATAAAACwAAAAEAAAPpAAAD7QAAAAAAAAAD",
         "AAAAAAAAAGlBbnlvbmUgbWF5IGNhbGwgdGhpcyBvbmNlIHRoZSBkZWFkbGluZSBoYXMgcGFzc2VkLiBSZWZ1bmRzIGV2ZXJ5CnBhcnRpY2lwYW50IHdobyBoYWQgY2xlYXJlZCB0aGVpciBzaGFyZS4AAAAAAAAGZXhwaXJlAAAAAAAAAAAAAQAAA+kAAAPtAAAAAAAAAAM=",
         "AAAAAAAAAINBIHBhcnRpY2lwYW50IGRlcG9zaXRzIHRoZWlyIGV4YWN0IHJlcXVpcmVkIHNoYXJlLiBPbmNlIGV2ZXJ5IHNoYXJlCmlzIGNsZWFyZWQgdGhpcyBmaXJlcyB0aGUgcmVsZWFzZSBpbnRlcm5hbGx5LCBpbiB0aGUgc2FtZSBjYWxsLgAAAAAGc2V0dGxlAAAAAAABAAAAAAAAAAtwYXJ0aWNpcGFudAAAAAATAAAAAQAAA+kAAAPtAAAAAAAAAAM=",
         "AAAAAAAAAAAAAAAGc3RhdHVzAAAAAAAAAAAAAQAAB9AAAAAGU3RhdHVzAAA=",

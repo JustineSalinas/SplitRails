@@ -16,6 +16,7 @@ enum DataKey {
     Status,
     Share(Address),
     Cleared(Address),
+    Creator,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -48,14 +49,21 @@ impl EscrowContract {
     /// Opens an invoice: vendor, token (USDC SAC), deadline, and each
     /// participant's exact share. `total_required` must equal the sum of
     /// `shares` — a mismatch means the off-chain split has a rounding bug.
+    /// `creator` must authorize this call — without it, anyone who knows the
+    /// (not-yet-initialized) contract ID could front-run the real invoice
+    /// setup, and since `init` is one-shot that would permanently brick the
+    /// instance.
     pub fn init(
         env: Env,
+        creator: Address,
         vendor: Address,
         token: Address,
         deadline: u64,
         total_required: i128,
         shares: Vec<(Address, i128)>,
     ) -> Result<(), Error> {
+        creator.require_auth();
+
         if env.storage().instance().has(&DataKey::Vendor) {
             return Err(Error::AlreadyInitialized);
         }
@@ -79,6 +87,7 @@ impl EscrowContract {
             return Err(Error::SharesDoNotSumToTotal);
         }
 
+        env.storage().instance().set(&DataKey::Creator, &creator);
         env.storage().instance().set(&DataKey::Vendor, &vendor);
         env.storage().instance().set(&DataKey::Token, &token);
         env.storage().instance().set(&DataKey::Deadline, &deadline);
@@ -303,6 +312,7 @@ mod test {
         let contract_id = env.register(EscrowContract, ());
         let client = EscrowContractClient::new(&env, &contract_id);
 
+        let creator = Address::generate(&env);
         let vendor = Address::generate(&env);
         let admin = Address::generate(&env);
         let alice = Address::generate(&env);
@@ -314,6 +324,7 @@ mod test {
         token_admin.mint(&carol, &1_000);
 
         client.init(
+            &creator,
             &vendor,
             &token_address,
             &1_000u64,
@@ -438,15 +449,18 @@ mod test {
     #[should_panic]
     fn test_init_rejects_shares_not_summing_to_total() {
         let env = Env::default();
+        env.mock_all_auths();
         let contract_id = env.register(EscrowContract, ());
         let client = EscrowContractClient::new(&env, &contract_id);
 
+        let creator = Address::generate(&env);
         let vendor = Address::generate(&env);
         let token = Address::generate(&env);
         let alice = Address::generate(&env);
         let bob = Address::generate(&env);
 
         client.init(
+            &creator,
             &vendor,
             &token,
             &1_000u64,
@@ -459,15 +473,41 @@ mod test {
     #[should_panic]
     fn test_init_twice_fails() {
         let env = Env::default();
+        env.mock_all_auths();
         let contract_id = env.register(EscrowContract, ());
         let client = EscrowContractClient::new(&env, &contract_id);
+        let creator = Address::generate(&env);
         let vendor = Address::generate(&env);
         let token = Address::generate(&env);
         let alice = Address::generate(&env);
 
         let shares = Vec::from_array(&env, [(alice.clone(), 100i128)]);
-        client.init(&vendor, &token, &1_000u64, &100i128, &shares);
-        client.init(&vendor, &token, &1_000u64, &100i128, &shares);
+        client.init(&creator, &vendor, &token, &1_000u64, &100i128, &shares);
+        client.init(&creator, &vendor, &token, &1_000u64, &100i128, &shares);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_init_requires_creator_auth() {
+        // No `env.mock_all_auths()` here — `creator.require_auth()` must fail
+        // when nobody has authorized this call.
+        let env = Env::default();
+        let contract_id = env.register(EscrowContract, ());
+        let client = EscrowContractClient::new(&env, &contract_id);
+
+        let creator = Address::generate(&env);
+        let vendor = Address::generate(&env);
+        let token = Address::generate(&env);
+        let alice = Address::generate(&env);
+
+        client.init(
+            &creator,
+            &vendor,
+            &token,
+            &1_000u64,
+            &100i128,
+            &Vec::from_array(&env, [(alice.clone(), 100i128)]),
+        );
     }
 
     #[test]

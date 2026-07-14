@@ -16,7 +16,7 @@ matters — as much as the code.
 - **Problem:** multi-party, cross-border team payments are slow, expensive, and require one person to
   trust the others with real money up front.
 - **Solution:** a neutral smart contract (not a person) holds funds and enforces "all or nothing"
-  atomic settlement, with biometric/one-tap approval per participant.
+  atomic settlement, with one-tap wallet approval per participant.
 - **Proof (the demo):** create invoice → each party approves → funds settle to vendor on testnet →
   show the live transaction on Stellar Expert. Then show the rollback path (a party doesn't pay →
   everyone refunded).

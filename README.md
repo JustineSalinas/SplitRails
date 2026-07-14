@@ -17,7 +17,7 @@ step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
 
 | Contract | Testnet address | Deployed |
 |---|---|---|
-| Escrow | `CCXBJ3ZDLFHO4HZN3ODZTHFLLWAEYELN6V5QMUBNFUS3PBFYLBWSZQVI` | ☑ |
+| Escrow | `CDENUPG5EBM6ZCTOH7UVJMDHDLS4ZWABMUJFIV42LKEPYVFVPKO2P3IH` | ☑ |
 | Smart Wallet | N/A — see note below | ☐ |
 
 Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet). Every
