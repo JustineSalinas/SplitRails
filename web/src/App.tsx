@@ -1,14 +1,17 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { WalletProvider } from './context/WalletContext'
-import { Activity } from './pages/Activity'
 import { AuditComplete } from './pages/AuditComplete'
 import { AuditLedger } from './pages/AuditLedger'
 import { Dashboard } from './pages/Dashboard'
+import { History } from './pages/History'
+import { Login } from './pages/Login'
 import { PasskeyDemo } from './pages/PasskeyDemo'
 import { PaySlice } from './pages/PaySlice'
+import { Profile } from './pages/Profile'
 import { ReviewSplit } from './pages/ReviewSplit'
 import { SentSuccess } from './pages/SentSuccess'
+import { SignUp } from './pages/SignUp'
 import { SliceLocked } from './pages/SliceLocked'
 import { SplitCreator } from './pages/SplitCreator'
 import { SplitExpired } from './pages/SplitExpired'
@@ -20,6 +23,8 @@ function App() {
     <WalletProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<SignUp />} />
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="new" element={<SplitCreator />} />
@@ -31,8 +36,9 @@ function App() {
             <Route path="audit-complete" element={<AuditComplete />} />
             <Route path="audit-ledger" element={<AuditLedger />} />
             <Route path="expired" element={<SplitExpired />} />
-            <Route path="activity" element={<Activity />} />
+            <Route path="activity" element={<History />} />
             <Route path="vault" element={<Vault />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="passkey-demo" element={<PasskeyDemo />} />
           </Route>
         </Routes>

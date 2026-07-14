@@ -179,6 +179,26 @@ export function PaySlice() {
                 Secured by SplitRails 256-bit encryption
               </div>
             </div>
+
+            {/* Currency / fee disclosure */}
+            <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 mt-5">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-xs text-text-secondary">Billed in JPY</span>
+                <span className="font-mono text-xs text-text-primary">¥54,320</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-xs text-text-secondary">Charged in USD</span>
+                <span className="font-mono text-xs font-bold text-text-primary">$360.00</span>
+              </div>
+              <hr className="h-[0.5px] bg-border/50 border-none my-1" />
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="msym text-text-muted text-sm">bolt</span>
+                  <span className="text-xs text-text-secondary">Stellar network fee</span>
+                </div>
+                <span className="font-mono text-xs text-text-primary">0.00001 XLM</span>
+              </div>
+            </div>
           </div>
         </div>
 

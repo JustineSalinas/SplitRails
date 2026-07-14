@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useWallet } from '../context/WalletContext'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -66,6 +66,12 @@ export function Nav() {
               {connecting ? 'Connecting…' : 'Connect wallet'}
             </button>
           )}
+          <Link
+            to="/profile"
+            className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold cursor-pointer"
+          >
+            RM
+          </Link>
         </div>
       </div>
     </header>
