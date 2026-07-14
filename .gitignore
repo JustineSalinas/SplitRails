@@ -4,6 +4,10 @@
 docs/pm/
 *-INTERNAL.md
 
+# ---- Claude Code — local session context, not for the public hackathon repo ----
+CLAUDE.md
+.claude/
+
 # ---- Rust / Soroban ----
 target/
 **/*.rs.bk

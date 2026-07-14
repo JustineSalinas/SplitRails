@@ -1,0 +1,9 @@
+# Rust's output directory
+target
+
+# Local settings
+.soroban
+.stellar
+
+# cargo test debug output (soroban-sdk writes one JSON snapshot per test run)
+test_snapshots/
