@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
-import { baseUnitsToDollars } from '../lib/amounts'
-import { getEscrowTotals, settleShare } from '../lib/escrow'
+import { baseUnitsToDollars, truncateAddress } from '../lib/amounts'
+import {
+  getEscrowParticipants,
+  getEscrowTotals,
+  getParticipantShare,
+  isParticipantCleared,
+  settleShare,
+} from '../lib/escrow'
 
 const GOAL = 1850
 const CLOSES_IN_SECONDS = 8 * 60 + 28
+const LIVE_AVATAR_COLORS = ['#007AFF', '#00C7BE', '#7A5AF8', '#FF9500', '#5c5f61', '#263143']
 
 interface Participant {
   id: number
@@ -26,6 +33,33 @@ const initialParticipants: Participant[] = [
   { id: 5, name: 'Taylor W.', initials: '?', avatarBg: '#ECEDF9', locked: false, joined: false },
 ]
 
+// Real per-participant history, once there's a live invoice to read. The
+// contract only knows addresses (no names/avatars — that's off-chain
+// identity data nobody's built yet), so each row's "name" is a truncated
+// address, same convention as ReviewSplit's summary.
+async function loadLiveParticipants(myAddress: string | null): Promise<Participant[] | null> {
+  const addresses = await getEscrowParticipants()
+  if (addresses.length === 0) return null
+  return Promise.all(
+    addresses.map(async (participantAddress, i) => {
+      const [share, cleared] = await Promise.all([
+        getParticipantShare(participantAddress),
+        isParticipantCleared(participantAddress),
+      ])
+      return {
+        id: i,
+        name: truncateAddress(participantAddress),
+        initials: participantAddress.slice(1, 3).toUpperCase(),
+        avatarBg: LIVE_AVATAR_COLORS[i % LIVE_AVATAR_COLORS.length],
+        amount: baseUnitsToDollars(share),
+        isMe: participantAddress === myAddress,
+        locked: cleared,
+        joined: true,
+      }
+    }),
+  )
+}
+
 function formatCountdown(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60)
   const s = totalSeconds % 60
@@ -36,6 +70,7 @@ export function ViewAudit() {
   const { address, connecting, error: walletError, connect } = useWallet()
   const [secondsLeft, setSecondsLeft] = useState(CLOSES_IN_SECONDS)
   const [participants, setParticipants] = useState(initialParticipants)
+  const [liveParticipants, setLiveParticipants] = useState<Participant[] | null>(null)
   const [locking, setLocking] = useState(false)
   const [lockError, setLockError] = useState<string | null>(null)
   const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
@@ -51,7 +86,8 @@ export function ViewAudit() {
     let cancelled = false
     getEscrowTotals()
       .then((totals) => {
-        if (!cancelled) setLiveTotals({ cleared: baseUnitsToDollars(totals[1]), required: baseUnitsToDollars(totals[0]) })
+        // get_totals() returns (cleared, required) — totals[0] is cleared.
+        if (!cancelled) setLiveTotals({ cleared: baseUnitsToDollars(totals[0]), required: baseUnitsToDollars(totals[1]) })
       })
       .catch(() => {
         // no live escrow to read yet — fall back to the mock totals below
@@ -60,6 +96,20 @@ export function ViewAudit() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    loadLiveParticipants(address)
+      .then((rows) => {
+        if (!cancelled && rows) setLiveParticipants(rows)
+      })
+      .catch(() => {
+        // no live escrow to read yet — fall back to the mock participants below
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [address])
 
   async function handleLockMe() {
     if (!address) {
@@ -70,7 +120,12 @@ export function ViewAudit() {
     setLockError(null)
     try {
       await settleShare(address, address)
-      setParticipants((prev) => prev.map((p) => (p.isMe ? { ...p, locked: true } : p)))
+      if (liveParticipants) {
+        const rows = await loadLiveParticipants(address)
+        if (rows) setLiveParticipants(rows)
+      } else {
+        setParticipants((prev) => prev.map((p) => (p.isMe ? { ...p, locked: true } : p)))
+      }
     } catch (err) {
       setLockError(err instanceof Error ? err.message : 'Failed to settle your share')
     } finally {
@@ -78,9 +133,11 @@ export function ViewAudit() {
     }
   }
 
-  const lockedAmount = liveTotals?.cleared ?? participants.reduce((sum, p) => sum + (p.locked ? (p.amount ?? 0) : 0), 0)
-  const totalPot = liveTotals?.required ?? participants.reduce((sum, p) => sum + (p.amount ?? 0), 0)
-  const partiesJoined = participants.filter((p) => p.joined).length
+  const displayParticipants = liveParticipants ?? participants
+  const lockedAmount = liveTotals?.cleared ?? displayParticipants.reduce((sum, p) => sum + (p.locked ? (p.amount ?? 0) : 0), 0)
+  const totalPot = liveTotals?.required ?? displayParticipants.reduce((sum, p) => sum + (p.amount ?? 0), 0)
+  const partiesJoined = displayParticipants.filter((p) => p.joined).length
+  const totalInvited = liveParticipants ? liveParticipants.length : 6
   const committedPct = Math.round((lockedAmount / GOAL) * 100)
   const circumference = 2 * Math.PI * 42
   const dashArray = `${(committedPct / 100) * circumference} ${circumference}`
@@ -156,7 +213,7 @@ export function ViewAudit() {
               </div>
               <div className="text-center border-l-[0.5px] border-r-[0.5px] border-border">
                 <div className="text-[13px] font-bold text-text-secondary mb-2">Parties</div>
-                <div className="font-mono text-[22px] font-bold">{partiesJoined} / 6</div>
+                <div className="font-mono text-[22px] font-bold">{partiesJoined} / {totalInvited}</div>
               </div>
               <div className="text-center">
                 <div className="text-[13px] font-bold text-text-secondary mb-2">Locked</div>
@@ -178,7 +235,7 @@ export function ViewAudit() {
               <div className="px-6 py-5 flex items-center justify-between">
                 <h3 className="text-base font-bold m-0">Participants</h3>
                 <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
-                  6 invited
+                  {liveParticipants ? `${totalInvited} on invoice` : `${totalInvited} invited`}
                 </span>
               </div>
               <hr className="h-[0.5px] bg-border/50 border-none" />
@@ -187,7 +244,7 @@ export function ViewAudit() {
                 <div className="px-6 pt-3 text-[11px] text-[#93000a]">{lockError ?? walletError}</div>
               )}
 
-              {participants.map((p) => (
+              {displayParticipants.map((p) => (
                 <div key={p.id}>
                   <div
                     className="px-6 py-4 flex items-center justify-between gap-3"

@@ -87,17 +87,33 @@ const initialParticipants: Participant[] = [
   },
 ]
 
+// Splits in integer cents and hands the leftover penny(s) to the first
+// unlocked participants, so the shares always sum to *exactly* the total —
+// the on-chain contract rejects init() unless shares sum to the total to
+// the last stroop, and a naive per-person `Math.round` (e.g. $100 / 3 =
+// $33.33 x 3 = $99.99) would fail that check.
 function splitEvenly(list: Participant[], total: number): Participant[] {
   const lockedSum = list.filter((p) => p.locked).reduce((sum, p) => sum + p.amount, 0)
   const unlocked = list.filter((p) => !p.locked)
-  const remaining = Math.max(total - lockedSum, 0)
-  const share = unlocked.length > 0 ? remaining / unlocked.length : 0
-  return list.map((p) => (p.locked ? p : { ...p, amount: Math.round(share * 100) / 100 }))
+  const remainingCents = Math.max(Math.round((total - lockedSum) * 100), 0)
+  const count = unlocked.length
+  if (count === 0) return list.map((p) => ({ ...p }))
+
+  const baseCents = Math.floor(remainingCents / count)
+  const extraCents = remainingCents - baseCents * count
+
+  let unlockedIndex = 0
+  return list.map((p) => {
+    if (p.locked) return p
+    const cents = baseCents + (unlockedIndex < extraCents ? 1 : 0)
+    unlockedIndex += 1
+    return { ...p, amount: cents / 100 }
+  })
 }
 
 export function SplitCreator() {
   const navigate = useNavigate()
-  const { address: myAddress, connect } = useWallet()
+  const { address: myAddress, connecting, error: walletError, connect } = useWallet()
   const [totalInput, setTotalInput] = useState('452.00')
   const [method, setMethod] = useState<SplitMethod>('equal')
   const [participants, setParticipants] = useState<Participant[]>(initialParticipants)
@@ -634,9 +650,11 @@ export function SplitCreator() {
                 <button
                   type="button"
                   onClick={connect}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98"
+                  disabled={connecting}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 disabled:opacity-60"
                 >
-                  <span className="msym text-base">account_balance_wallet</span> Connect wallet to continue
+                  <span className="msym text-base">account_balance_wallet</span>{' '}
+                  {connecting ? 'Connecting…' : 'Connect wallet to continue'}
                 </button>
               ) : (
                 <button
@@ -648,6 +666,9 @@ export function SplitCreator() {
                 >
                   Review split <span className="msym text-lg">arrow_forward</span>
                 </button>
+              )}
+              {!myAddress && walletError && (
+                <div className="mt-2 text-[11px] text-[#93000a] text-center">{walletError}</div>
               )}
               {myAddress && reviewError && (
                 <div className="mt-2 text-[11px] text-[#93000a] text-center">{reviewError}</div>

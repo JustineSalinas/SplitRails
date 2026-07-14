@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { DonutChart } from '../components/DonutChart'
 import { useWallet } from '../context/WalletContext'
-import { dollarsToBaseUnits } from '../lib/amounts'
+import { dollarsToBaseUnits, truncateAddress } from '../lib/amounts'
 import { initEscrow } from '../lib/escrow'
 import type { EscrowDraft } from '../lib/escrowDraft'
 
@@ -70,10 +70,6 @@ const mockParticipants: ReviewParticipant[] = [
 ]
 
 const shareLink = 'splitrails.co/s/office-dinner'
-
-function truncateAddress(address: string) {
-  return `${address.slice(0, 4)}…${address.slice(-4)}`
-}
 
 export function ReviewSplit() {
   const navigate = useNavigate()

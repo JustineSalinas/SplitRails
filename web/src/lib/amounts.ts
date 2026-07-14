@@ -16,3 +16,7 @@ const STELLAR_ADDRESS_RE = /^[GC][A-Z2-7]{55}$/
 export function isValidStellarAddress(value: string): boolean {
   return STELLAR_ADDRESS_RE.test(value.trim())
 }
+
+export function truncateAddress(address: string): string {
+  return `${address.slice(0, 4)}…${address.slice(-4)}`
+}
