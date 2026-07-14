@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import logo from '../assets/finalsplitrailsicon.webp'
 
 export function Login() {
   const navigate = useNavigate()
@@ -17,13 +18,11 @@ export function Login() {
     <div className="min-h-screen bg-bg text-text-primary font-sans flex items-center justify-center p-6">
       <div className="w-full max-w-[400px]">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-[9px] bg-gradient-brand flex items-center justify-center text-white font-bold text-base">
-            S
-          </div>
+          <img src={logo} alt="SplitRails" className="w-8 h-8 rounded-[9px] object-cover" />
           <span className="text-[19px] font-semibold tracking-tight">SplitRails</span>
         </div>
 
-        <div className="bg-white border-[0.5px] border-border/50 rounded-2xl shadow-card p-8">
+        <div className="bg-white border-[0.5px] border-border/50 rounded-2xl shadow-card p-8 max-sm:p-6">
           <h1 className="text-2xl font-bold tracking-tight m-0 mb-1.5 text-center">Welcome back</h1>
           <p className="text-sm text-text-secondary m-0 mb-6 text-center">Log in to manage your splits</p>
 

@@ -46,7 +46,7 @@ export function PaySlice() {
 
   return (
     <div className="text-text-primary font-sans pb-20">
-      <main className="max-w-[1200px] mx-auto px-10 pt-10">
+      <main className="max-w-[1200px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         <div className="grid grid-cols-[1.4fr_1fr] gap-6 items-start max-lg:grid-cols-1">
           {/* Left column */}
           <div className="flex flex-col gap-5">

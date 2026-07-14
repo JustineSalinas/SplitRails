@@ -8,7 +8,7 @@ interface ProfileFields {
 }
 
 const inputClasses =
-  'text-sm font-semibold text-text-primary text-right bg-neutral-light rounded-lg px-2.5 py-1.5 border-none outline-none focus:ring-2 focus:ring-info/30 font-sans w-[220px]'
+  'text-sm font-semibold text-text-primary text-right bg-neutral-light rounded-lg px-2.5 py-1.5 border-none outline-none focus:ring-2 focus:ring-info/30 font-sans w-[220px] max-sm:w-[140px]'
 
 function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
@@ -69,7 +69,7 @@ export function Profile() {
         </div>
       )}
 
-      <main className="max-w-[1120px] mx-auto px-10 pt-10">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         <h1 className="text-[32px] font-bold tracking-tight m-0 mb-6">Profile</h1>
 
         <div className="grid grid-cols-[1fr_1.6fr] gap-5 items-start max-[900px]:grid-cols-1">

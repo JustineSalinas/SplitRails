@@ -33,7 +33,7 @@ export function SliceLocked() {
         @keyframes pop-in { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}</style>
 
-      <main className="max-w-[800px] mx-auto px-10 pt-16 flex flex-col items-center">
+      <main className="max-w-[800px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-16 max-sm:pt-8 flex flex-col items-center">
         {/* Success card */}
         <div className="w-full max-w-[480px] bg-white border-[0.5px] border-border/60 rounded-[28px] shadow-card p-12 flex flex-col items-center text-center animate-[pop-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]">
           <div className="w-24 h-24 mb-5">

@@ -144,7 +144,7 @@ export function ViewAudit() {
 
   return (
     <div className="text-text-primary font-sans pb-20">
-      <main className="max-w-[1120px] mx-auto px-10 pt-10">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
@@ -173,9 +173,9 @@ export function ViewAudit() {
 
         <div className="grid grid-cols-[1.4fr_1fr] gap-5 max-[900px]:grid-cols-1">
           {/* Left: Pie progress */}
-          <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-10 flex flex-col items-center justify-center">
-            <div className="relative w-[280px] h-[280px]">
-              <svg width="280" height="280" viewBox="0 0 100 100" className="-rotate-90">
+          <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-10 max-md:p-6 max-sm:p-4 flex flex-col items-center justify-center">
+            <div className="relative w-[280px] h-[280px] max-sm:w-[220px] max-sm:h-[220px]">
+              <svg width="100%" height="100%" viewBox="0 0 100 100" className="-rotate-90">
                 <defs>
                   <linearGradient id="pieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#007AFF" />
@@ -206,7 +206,7 @@ export function ViewAudit() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 w-full max-w-[440px] mt-10">
+            <div className="grid grid-cols-3 gap-8 max-sm:gap-3 w-full max-w-[440px] mt-10">
               <div className="text-center">
                 <div className="text-[13px] font-bold text-text-secondary mb-2">Goal</div>
                 <div className="font-mono text-[22px] font-bold">${GOAL.toFixed(2)}</div>

@@ -32,7 +32,7 @@ export function AuditComplete() {
         @keyframes success-pop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
       `}</style>
 
-      <main className="max-w-[1120px] mx-auto px-10 pt-14">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-14 max-sm:pt-8">
         {/* Confirmation banner */}
         <div className="text-center max-w-[560px] mx-auto mb-8 animate-[success-pop_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-light rounded-full mb-4">
@@ -50,8 +50,8 @@ export function AuditComplete() {
 
         <div className="grid grid-cols-[1.4fr_1fr] gap-5 items-start max-[900px]:grid-cols-1">
           {/* Left: Pie visualizer */}
-          <div className="bg-white border-[0.5px] border-border/50 rounded-[20px] shadow-card min-h-[460px] flex flex-col items-center justify-center p-10 relative overflow-hidden">
-            <div className="w-60 h-60 rounded-full bg-gradient-brand shadow-[0_20px_50px_rgba(0,122,255,0.22)] flex items-center justify-center relative animate-[success-pop_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
+          <div className="bg-white border-[0.5px] border-border/50 rounded-[20px] shadow-card min-h-[460px] flex flex-col items-center justify-center p-10 max-md:p-6 max-sm:p-4 relative overflow-hidden">
+            <div className="w-60 h-60 max-sm:w-44 max-sm:h-44 rounded-full bg-gradient-brand shadow-[0_20px_50px_rgba(0,122,255,0.22)] flex items-center justify-center relative animate-[success-pop_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
               <div className="absolute inset-0 rounded-full border-8 border-white/20" />
               <div className="z-[1] bg-white/10 backdrop-blur-md rounded-full p-8 border border-white/30 flex items-center justify-center">
                 <span className="text-white font-bold text-xl">PAID</span>

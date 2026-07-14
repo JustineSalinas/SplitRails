@@ -34,15 +34,15 @@ export function ParticipantRow({
   onDelete,
 }: ParticipantRowProps) {
   return (
-    <div className="flex items-center justify-between p-3.5 px-4 bg-white border-[0.5px] border-border/60 rounded-xl transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between flex-wrap gap-y-2 p-3.5 px-4 bg-white border-[0.5px] border-border/60 rounded-xl transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-3 min-w-0">
         <Avatar initials={initials} bg={avatarColor} size={36} bordered={false} textColor="white" />
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <input
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              className="border-none bg-transparent outline-none text-[15px] font-semibold text-text-primary p-0 w-[140px] font-sans focus:bg-info-light focus:rounded focus:px-1 focus:-mx-1"
+              className="border-none bg-transparent outline-none text-[15px] font-semibold text-text-primary p-0 w-[140px] max-sm:w-[100px] font-sans focus:bg-info-light focus:rounded focus:px-1 focus:-mx-1"
             />
             {paid && (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-success-light text-success">
@@ -58,7 +58,7 @@ export function ParticipantRow({
               onChange={(e) => onAddressChange(e.target.value)}
               placeholder="Stellar address (G…)"
               spellCheck={false}
-              className="mt-1 border-none bg-transparent outline-none text-[11px] font-mono text-text-muted p-0 w-[180px] focus:bg-info-light focus:rounded focus:px-1 focus:-mx-1"
+              className="mt-1 border-none bg-transparent outline-none text-[11px] font-mono text-text-muted p-0 w-[180px] max-sm:w-[130px] focus:bg-info-light focus:rounded focus:px-1 focus:-mx-1"
             />
           )}
         </div>
@@ -79,7 +79,7 @@ export function ParticipantRow({
           <input
             value={amount}
             onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
-            className="w-[84px] text-right border-none bg-transparent text-xl font-semibold tracking-tight text-text-primary outline-none font-mono tabular-nums"
+            className="w-[84px] max-sm:w-[60px] text-right border-none bg-transparent text-xl font-semibold tracking-tight text-text-primary outline-none font-mono tabular-nums"
           />
         </div>
         {removable && onDelete && (

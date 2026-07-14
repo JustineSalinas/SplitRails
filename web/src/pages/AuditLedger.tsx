@@ -122,7 +122,7 @@ export function AuditLedger() {
 
   return (
     <div className="text-text-primary font-sans pb-20">
-      <main className="max-w-[1120px] mx-auto px-10 pt-10">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>

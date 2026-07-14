@@ -138,7 +138,7 @@ export function Vault() {
           successfully
         </div>
       )}
-      <main className="max-w-[1120px] mx-auto px-10 pt-10">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         {/* Header */}
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
@@ -153,7 +153,7 @@ export function Vault() {
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-4 mb-7">
+        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-4 mb-7">
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-5">
             <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2.5">
               Currently locked
@@ -232,7 +232,7 @@ export function Vault() {
               onSubmit={handleSaveCard}
               className="bg-neutral-light/60 border-[0.5px] border-border rounded-xl p-5 mt-3 mb-1"
             >
-              <div className="grid grid-cols-2 gap-3.5 mb-3.5">
+              <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3.5 mb-3.5">
                 <div>
                   <label htmlFor="cardholderName" className="text-[13px] font-semibold text-text-primary mb-1.5 block">
                     Cardholder name
@@ -263,7 +263,7 @@ export function Vault() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3.5 mb-4">
+              <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-3.5 mb-4">
                 <div>
                   <label htmlFor="expiry" className="text-[13px] font-semibold text-text-primary mb-1.5 block">
                     Expiry

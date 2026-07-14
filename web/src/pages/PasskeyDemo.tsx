@@ -85,7 +85,7 @@ export function PasskeyDemo() {
   }
 
   return (
-    <main className="max-w-[720px] mx-auto px-10 py-10">
+    <main className="max-w-[720px] mx-auto px-10 max-md:px-6 max-sm:px-4 py-10 max-sm:py-6">
       <h1 className="text-[28px] font-bold tracking-tight m-0 mb-1.5">Passkey signing — technical demo</h1>
       <p className="text-text-secondary text-sm m-0 mb-6 max-w-[560px]">
         Proof-of-concept only: a real browser passkey signs a challenge bound to a real escrow
