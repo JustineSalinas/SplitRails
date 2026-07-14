@@ -20,7 +20,7 @@ step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
 
 | Contract | Testnet address | Deployed |
 |---|---|---|
-| Escrow | `CABWME74JDV4H2CR4FQL2IMAIIBHQ66XLJPSXS5GYQMIRXGZH3JGB6DL` | ☑ |
+| Escrow | `CCV6VD2XK2ZQC2DD3L5ZY6GNYPWAL2VLR73SNUB6EQOCLYYWTWW5DNUQ` | ☑ |
 | Smart Wallet | `TODO — paste C… address here (or N/A)` | ☐ |
 
 Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet).

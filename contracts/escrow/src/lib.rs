@@ -223,6 +223,16 @@ impl EscrowContract {
             .unwrap_or(0);
         (cleared, required)
     }
+
+    /// Has this specific participant paid their share yet? Lets the
+    /// frontend/sync worker show "locked vs required" per row without
+    /// replaying events.
+    pub fn is_cleared(env: Env, participant: Address) -> bool {
+        env.storage()
+            .instance()
+            .get(&DataKey::Cleared(participant))
+            .unwrap_or(false)
+    }
 }
 
 /// Transfers the full aggregate to the vendor in one payout. Only ever
@@ -331,6 +341,20 @@ mod test {
         assert_eq!(s.token.balance(&s.vendor), 600);
         assert_eq!(s.token.balance(&s.client_id), 0);
         assert_eq!(client.get_totals(), (600, 600));
+    }
+
+    #[test]
+    fn test_is_cleared_reflects_per_participant_payment_status() {
+        let s = setup_three_way_invoice();
+        let client = EscrowContractClient::new(&s.env, &s.client_id);
+
+        assert_eq!(client.is_cleared(&s.alice), false);
+        assert_eq!(client.is_cleared(&s.bob), false);
+
+        client.settle(&s.alice);
+
+        assert_eq!(client.is_cleared(&s.alice), true);
+        assert_eq!(client.is_cleared(&s.bob), false);
     }
 
     #[test]
