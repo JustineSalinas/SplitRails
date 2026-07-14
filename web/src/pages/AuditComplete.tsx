@@ -7,7 +7,7 @@ const FULL_HASH = '0x7a2c9e4f1b8d6a3c5e7f9b2d4a6c8e0f2a4c6e8b0d2f4a6c8e0f2a4c6e8
 
 export function AuditComplete() {
   const [expanded, setExpanded] = useState(false)
-
+// /testing
   function handleDownloadReceipt() {
     const receipt = [
       'SplitRails Receipt',
