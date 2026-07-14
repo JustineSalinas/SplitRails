@@ -1,28 +1,17 @@
-# backend/ — passkey server + AnchorAdapter (optional)
+# backend/ — passkey server (Dropped)
 
-**Owner:** Llarie. Optional — only needed for the passkey/biometric path, where the CheesecakeLabs
-PoC uses a small Express backend to relay WebAuthn registration/authentication. Depending on the
-approval method the team lands on (see the internal build plan), this may not be needed at all.
+**Owner:** Llarie.
 
-## Responsibilities
-- [ ] **Passkey relay** (if using the passkey path) — WebAuthn registration/auth endpoints, adapted from the PoC.
-- [ ] **`AnchorAdapter` interface** — shaped like a SEP-24 client. PHP corridor pointed at a testnet
-      anchor sandbox; VND/IDR as configured-but-not-wired entries in the same interface.
+> [!NOTE]
+> **Passkey relay has been dropped** (Jul 13 NO-GO, see `GATE-DECISIONS.md`).
+> The `AnchorAdapter` has been moved to the frontend service layer at [anchor.ts](file:///Users/llariesalinas/development/SplitRails/web/src/lib/anchor.ts) to allow direct listing of corridors and loading of interactive deposit/withdraw URLs.
+> As a result, no backend service is required for the hackathon demo.
 
-## The AnchorAdapter shape (interface, not a full integration for the demo)
-```ts
-interface AnchorAdapter {
-  currency: 'PHP' | 'VND' | 'IDR';
-  enabled: boolean;                 // PHP: true (wired to sandbox); VND/IDR: false (configured only)
-  initDeposit(amount: string): Promise<{ interactiveUrl: string }>;   // SEP-24-style
-  initWithdraw(amount: string): Promise<{ interactiveUrl: string }>;
-}
-```
-
-## Do this early
-Verify a **testnet anchor sandbox is reachable** by **Jul 13** — availability changes; check the
-Stellar anchor directory before committing to one, not on deploy day.
+## Historical Context & Design Decisions
+- **Passkey relay:** Originally planned to relay WebAuthn registration/authentication using a small Express backend (adapted from the CheesecakeLabs PoC). This was dropped per the July 13 decision gate.
+- **`AnchorAdapter` interface:** Moved to `web/src/lib/anchor.ts`. It acts as a client-side interface for the demo (simulating SEP-24 interactive flows) rather than running a full backend integration. PHP, VND, and IDR corridors are all wired to a live testnet sandbox.
 
 ## References
-- SEP-24 (interactive deposit/withdraw) and SEP-31 (cross-border) — the standards anchors implement.
-- developers.stellar.org anchor section for currently listed testnet anchors.
+- [web/src/lib/anchor.ts](file:///Users/llariesalinas/development/SplitRails/web/src/lib/anchor.ts) — Current location of the `AnchorAdapter` implementation.
+- SEP-24 (interactive deposit/withdraw) and SEP-31 (cross-border) standards.
+

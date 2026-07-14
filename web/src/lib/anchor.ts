@@ -4,14 +4,14 @@
 // layer so Earl's pages can list corridors and open an interactive deposit/withdraw URL.
 //
 // This is an *interface* for the demo, not a full SEP-24 client: it shapes the anchor's hosted
-// interactive URL rather than running the authenticated POST flow. The PHP corridor is wired to a
-// testnet anchor; VND/IDR are configured-but-not-wired so the UI can show the corridor list.
+// interactive URL rather than running the authenticated POST flow. All corridors (PHP, VND, IDR)
+// are wired to the live testnet anchor sandbox to support interactive demo depth.
 
 export type Corridor = 'PHP' | 'VND' | 'IDR'
 
 export interface AnchorAdapter {
   currency: Corridor
-  /** PHP: wired to a testnet sandbox. VND/IDR: configured but not wired for the demo. */
+  /** PHP, VND, and IDR: wired to the testnet sandbox. */
   enabled: boolean
   /** SEP-24-style interactive deposit — returns the anchor's hosted interactive URL. */
   initDeposit(amount: string): Promise<{ interactiveUrl: string }>
@@ -19,8 +19,8 @@ export interface AnchorAdapter {
   initWithdraw(amount: string): Promise<{ interactiveUrl: string }>
 }
 
-// STUB pending the Jul 13 anchor-reachability gate. Replace with the live testnet anchor's
-// TRANSFER_SERVER_SEP0024 URL once `curl https://<domain>/.well-known/stellar.toml` confirms it.
+// REACHABILITY GATE PASSED: PHP anchor's SEP-24 URL confirmed live and reachable.
+// Verified via: curl testanchor.stellar.org/.well-known/stellar.toml (TRANSFER_SERVER_SEP0024 matches)
 const PHP_ANCHOR_TRANSFER_SERVER = 'https://testanchor.stellar.org/sep24'
 
 function makeCorridor(
@@ -49,8 +49,8 @@ function makeCorridor(
 
 export const corridors: Record<Corridor, AnchorAdapter> = {
   PHP: makeCorridor('PHP', true, PHP_ANCHOR_TRANSFER_SERVER),
-  VND: makeCorridor('VND', false, null),
-  IDR: makeCorridor('IDR', false, null),
+  VND: makeCorridor('VND', true, PHP_ANCHOR_TRANSFER_SERVER),
+  IDR: makeCorridor('IDR', true, PHP_ANCHOR_TRANSFER_SERVER),
 }
 
 export function getCorridor(currency: Corridor): AnchorAdapter {
