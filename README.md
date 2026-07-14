@@ -1,6 +1,6 @@
 # SplitRails
 
-**Atomic, biometric-signed expense escrow for cross-border teams — built on Stellar.**
+**Atomic, transaction-bound expense escrow for cross-border teams — built on Stellar.**
 
 Three freelancers in three countries share one client's bills. Today, one person fronts the whole
 cost and spends weeks chasing the others over slow, expensive bank wires. SplitRails replaces that:
@@ -15,15 +15,20 @@ step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
 
 ## 🔗 Deployed contract (Stellar Testnet)
 
-> **⚠️ SUBMISSION REQUIREMENT — this must be filled in before Jul 15.**
-> The final submission requires the deployed contract address in this README.
-
 | Contract | Testnet address | Deployed |
 |---|---|---|
 | Escrow | `CCV6VD2XK2ZQC2DD3L5ZY6GNYPWAL2VLR73SNUB6EQOCLYYWTWW5DNUQ` | ☑ |
-| Smart Wallet | `TODO — paste C… address here (or N/A)` | ☐ |
+| Smart Wallet | N/A — see note below | ☐ |
 
-Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet).
+Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet). Every
+settlement in the app links directly to its live testnet transaction from the Audit Ledger.
+
+**On the smart wallet:** the on-chain WebAuthn contract account was out of scope to ship fully this
+sprint, so live settlement uses one-tap wallet approval instead — a real signature bound to that
+specific transaction, not a generic login. As a technical proof-of-concept, `/passkey-demo` in the
+frontend does exercise a real browser passkey (WebAuthn) end-to-end — creating a credential and
+producing a signature over a hash of a real escrow transaction, verified client-side — but it is not
+wired into the contract account model and does not authorize on-chain actions.
 
 ---
 
@@ -31,9 +36,9 @@ Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/expl
 
 | Path | What it is | Owner |
 |---|---|---|
-| [`contracts/`](contracts/) | Rust/Soroban smart contracts — escrow + smart wallet | Theodore (+ Llarie) |
+| [`contracts/`](contracts/) | Rust/Soroban escrow contract (deployed); smart-wallet notes | Theodore (+ Llarie) |
 | [`web/`](web/) | React frontend — invoice, approvals, audit ledger | Earl |
-| [`backend/`](backend/) | Optional passkey server + `AnchorAdapter` interface | Llarie |
+| [`backend/`](backend/) | Notes only — passkey server was dropped; `AnchorAdapter` lives in `web/src/lib/anchor.ts` | Llarie |
 | [`scripts/`](scripts/) | Setup & deploy helpers — **start with the toolchain guide** | Shared |
 | [`docs/`](docs/) | Product pitch + architecture | PM |
 
@@ -53,7 +58,7 @@ React frontend (Earl)
       │ uses
 Stellar JS SDK ───────────► Horizon (read ledger) + Soroban RPC (call/simulate)
       │
-Escrow + smart-wallet contracts (Rust — Theodore) ── deployed to ──► Stellar testnet
+Escrow contract (Rust — Theodore) ── deployed to ──► Stellar testnet
       ↕
 Anchors (SEP-24/31) — bridge to real-world PHP/VND/IDR bank rails (Llarie, interface only)
 ```

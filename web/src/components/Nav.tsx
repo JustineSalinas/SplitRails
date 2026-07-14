@@ -27,12 +27,6 @@ export function Nav() {
             <NavLink to="/" end className={navLinkClass}>
               Splits
             </NavLink>
-            <NavLink to="/activity" className={navLinkClass}>
-              Activity
-            </NavLink>
-            <NavLink to="/vault" className={navLinkClass}>
-              Vault
-            </NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-3">

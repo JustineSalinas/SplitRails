@@ -5,6 +5,7 @@ import { Activity } from './pages/Activity'
 import { AuditComplete } from './pages/AuditComplete'
 import { AuditLedger } from './pages/AuditLedger'
 import { Dashboard } from './pages/Dashboard'
+import { PasskeyDemo } from './pages/PasskeyDemo'
 import { PaySlice } from './pages/PaySlice'
 import { ReviewSplit } from './pages/ReviewSplit'
 import { SentSuccess } from './pages/SentSuccess'
@@ -32,6 +33,7 @@ function App() {
             <Route path="expired" element={<SplitExpired />} />
             <Route path="activity" element={<Activity />} />
             <Route path="vault" element={<Vault />} />
+            <Route path="passkey-demo" element={<PasskeyDemo />} />
           </Route>
         </Routes>
       </BrowserRouter>

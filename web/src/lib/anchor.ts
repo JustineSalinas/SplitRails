@@ -19,8 +19,8 @@ export interface AnchorAdapter {
   initWithdraw(amount: string): Promise<{ interactiveUrl: string }>
 }
 
-// STUB pending the Jul 13 anchor-reachability gate. Replace with the live testnet anchor's
-// TRANSFER_SERVER_SEP0024 URL once `curl https://<domain>/.well-known/stellar.toml` confirms it.
+// Confirmed live Jul 14 via `curl https://testanchor.stellar.org/.well-known/stellar.toml`
+// (TRANSFER_SERVER_SEP0024 matches). Anchor-reachability gate closed — see GATE-DECISIONS.md.
 const PHP_ANCHOR_TRANSFER_SERVER = 'https://testanchor.stellar.org/sep24'
 
 function makeCorridor(

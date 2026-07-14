@@ -1,6 +1,7 @@
 import { signTransaction } from '@stellar/freighter-api'
 import { Client as EscrowClient } from './escrow-bindings'
 import { escrowContractId, networkPassphrase, sorobanRpcUrl } from './config'
+import { logTx } from './txLog'
 
 export type { Status as EscrowStatus } from './escrow-bindings'
 
@@ -32,19 +33,28 @@ export async function initEscrow(
     total_required: params.totalRequired,
     shares: params.shares,
   })
-  return tx.signAndSend()
+  const sent = await tx.signAndSend()
+  const hash = sent.sendTransactionResponse?.hash
+  if (hash) logTx('Split created', hash)
+  return sent
 }
 
 export async function settleShare(publicKey: string, participant: string) {
   const client = getEscrowClient(publicKey)
   const tx = await client.settle({ participant })
-  return tx.signAndSend()
+  const sent = await tx.signAndSend()
+  const hash = sent.sendTransactionResponse?.hash
+  if (hash) logTx(`${participant.slice(0, 4)}…${participant.slice(-4)} locked their share`, hash)
+  return sent
 }
 
 export async function expireEscrow(publicKey: string) {
   const client = getEscrowClient(publicKey)
   const tx = await client.expire()
-  return tx.signAndSend()
+  const sent = await tx.signAndSend()
+  const hash = sent.sendTransactionResponse?.hash
+  if (hash) logTx('Escrow expired · refunds issued', hash)
+  return sent
 }
 
 export async function getEscrowStatus() {

@@ -32,10 +32,20 @@ matters — as much as the code.
 
 Knowing which of these three a judge's question belongs to helps you answer it precisely.
 
-## Demo script (fill in as the build firms up)
-1. _[Setup: who the three parties are, what bill they're splitting.]_
-2. _[Create the invoice — show the split.]_
-3. _[Each party approves — show the auth method actually used.]_
-4. _[Settlement — show the vendor paid + the live Stellar Expert tx link.]_
-5. _[Rollback — show the refund path.]_
-6. _[One line on what's live vs. simulated-for-time, stated honestly.]_
+## Demo script
+1. **Setup:** three teammates share one vendor bill — say a $1,850 dinner or a shared AWS invoice.
+   One organizer, two other participants, split unevenly by what each actually owes.
+2. **Create the invoice:** organizer opens SplitRails, enters the vendor and total, and the app splits
+   it into each participant's share. Review screen shows the split balances exactly to the total before
+   anything is sent.
+3. **Each party approves:** every participant gets a link, connects their wallet, and locks their share
+   with one tap — a wallet approval bound to that specific transaction, not a generic login.
+4. **Settlement:** once all shares are locked, the contract releases the full amount to the vendor in
+   one atomic transaction. Open the Audit Ledger and click through to the live Stellar Expert tx link
+   for that settlement — the judges see a real testnet transaction, not a mockup.
+5. **Rollback:** show a split where a participant hasn't paid by the deadline — the contract refunds
+   everyone who already locked funds instead of releasing early. Same live-link proof on Stellar Expert.
+6. **What's live vs. simulated:** the escrow contract, settlement, and rollback are 100% real testnet
+   transactions — say so plainly. Wallet approval uses one-tap wallet signing; any UI still in mock
+   data (e.g. demo participant avatars/names) should be called out honestly rather than passed off as
+   live.

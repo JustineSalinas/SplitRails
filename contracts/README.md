@@ -9,11 +9,14 @@
 | Contract | Address | Deployed |
 |---|---|---|
 | escrow | `CCV6VD2XK2ZQC2DD3L5ZY6GNYPWAL2VLR73SNUB6EQOCLYYWTWW5DNUQ` | ☑ |
-| smart-wallet | `TODO / N/A` | ☐ |
+| smart-wallet | N/A — dropped for this sprint, see below | ☐ |
 
 ## Layout
 - [`escrow/`](escrow/) — the core escrow contract. **This must be 100% real on testnet — no exceptions.**
-- [`smart-wallet/`](smart-wallet/) — WebAuthn/passkey smart wallet. Highest risk; gated Jul 12.
+- [`smart-wallet/`](smart-wallet/) — WebAuthn/passkey smart wallet. Highest risk; Jul 12 gate closed
+  NO-GO — live settlement uses one-tap wallet approval instead. A standalone client-side WebAuthn
+  passkey proof-of-concept (real credential + real transaction-bound signature, verified client-side)
+  ships in the frontend at `/passkey-demo`, but no on-chain custom_account contract was built.
 
 ## Build & deploy (quick reference)
 ```bash

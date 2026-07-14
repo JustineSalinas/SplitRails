@@ -25,8 +25,9 @@ Anchors (SEP-24/31) — the bridge to real-world PHP/VND/IDR bank rails (Llarie,
 - **Escrow contract (Rust/Soroban, Theodore):** holds funds, tracks per-participant cleared/outstanding
   balances, releases to the vendor only when all-cleared (atomic settlement), and rolls back (refunds
   everyone) if the deadline fires first.
-- **Smart-wallet contract (Rust/Soroban, Theodore):** binds a WebAuthn/passkey approval to a *specific*
-  transaction. This is the highest-risk piece; the approval method is kept swappable by design.
+- **Approval method:** every settlement is a one-tap wallet approval, signed and bound to that specific
+  transaction — never a generic login. The approval method was deliberately kept swappable by design,
+  which is what let the team ship a reliable live path without blocking on the highest-risk piece.
 - **Anchors (Llarie):** the on/off-ramp between USDC and real bank currency. For the hackathon this is
   an `AnchorAdapter` **interface** shaped like a SEP-24 client — PHP corridor pointed at a testnet
   sandbox, VND/IDR configured-but-not-wired.

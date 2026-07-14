@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { baseUnitsToDollars } from '../lib/amounts'
 import { getEscrowStatus, getEscrowTotals, type EscrowStatus } from '../lib/escrow'
+import { getTxLog, stellarExpertTxUrl, type TxLogEntry } from '../lib/txLog'
 
 interface Contribution {
   id: number
@@ -52,6 +53,22 @@ function CopyHash({ hash }: HashEvent) {
   )
 }
 
+function LiveTxLink({ entry }: { entry: TxLogEntry }) {
+  return (
+    <a
+      href={stellarExpertTxUrl(entry.hash)}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-2 inline-flex items-center gap-2 bg-neutral-light rounded-lg px-3 py-2 no-underline text-inherit active:scale-97 transition-transform duration-150"
+    >
+      <span className="font-mono text-xs">
+        {entry.hash.slice(0, 6)}…{entry.hash.slice(-6)}
+      </span>
+      <span className="msym text-sm text-text-muted">open_in_new</span>
+    </a>
+  )
+}
+
 function statusLabel(status: EscrowStatus | null) {
   if (!status) return null
   if (status.tag === 'Open') return { label: 'Open', className: 'bg-action/[0.14] text-action-hover' }
@@ -63,6 +80,7 @@ export function AuditLedger() {
   const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
   const [liveStatus, setLiveStatus] = useState<EscrowStatus | null>(null)
   const [liveError, setLiveError] = useState<string | null>(null)
+  const [liveTxLog] = useState<TxLogEntry[]>(() => getTxLog())
 
   useEffect(() => {
     let cancelled = false
@@ -109,8 +127,8 @@ export function AuditLedger() {
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
             <nav className="flex items-center gap-1.5 mb-2">
-              <Link to="/activity" className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
-                Activity
+              <Link to="/" className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
+                Splits
               </Link>
               <span className="msym text-sm text-text-muted">chevron_right</span>
               <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary">
@@ -191,6 +209,31 @@ export function AuditLedger() {
           {/* Right: event timeline */}
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card px-6 py-7">
             <h3 className="text-base font-bold m-0 mb-5.5">Event history</h3>
+
+            {liveTxLog.length > 0 && (
+              <div className="flex flex-col mb-6">
+                <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-3">
+                  Live on-chain actions this session
+                </div>
+                {liveTxLog.map((entry) => (
+                  <div key={entry.hash} className="flex gap-4 relative pb-6">
+                    <div className="absolute left-[17px] top-[34px] bottom-[-8px] w-0.5 bg-border" />
+                    <div className="w-[34px] h-[34px] rounded-full bg-success-light flex items-center justify-center shrink-0 z-[1]">
+                      <span className="msym fill text-success text-[17px]">check_circle</span>
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold">{entry.label}</span>
+                        <span className="font-mono text-xs text-text-muted">
+                          {new Date(entry.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <LiveTxLink entry={entry} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="flex flex-col">
               <div className="flex gap-4 relative pb-6">
