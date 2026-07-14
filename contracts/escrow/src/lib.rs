@@ -233,6 +233,17 @@ impl EscrowContract {
             .get(&DataKey::Cleared(participant))
             .unwrap_or(false)
     }
+
+    /// The full roster of participant addresses on this invoice, in the
+    /// order they were passed to `init`. Lets the frontend enumerate rows
+    /// to query with `get_share`/`is_cleared` instead of needing them
+    /// hardcoded off-chain.
+    pub fn get_participants(env: Env) -> Vec<Address> {
+        env.storage()
+            .instance()
+            .get(&DataKey::Participants)
+            .unwrap_or(Vec::new(&env))
+    }
 }
 
 /// Transfers the full aggregate to the vendor in one payout. Only ever
@@ -341,6 +352,22 @@ mod test {
         assert_eq!(s.token.balance(&s.vendor), 600);
         assert_eq!(s.token.balance(&s.client_id), 0);
         assert_eq!(client.get_totals(), (600, 600));
+    }
+
+    #[test]
+    fn test_get_participants_returns_the_full_roster() {
+        let s = setup_three_way_invoice();
+        let client = EscrowContractClient::new(&s.env, &s.client_id);
+
+        let participants = client.get_participants();
+
+        assert_eq!(
+            participants,
+            Vec::from_array(
+                &s.env,
+                [s.alice.clone(), s.bob.clone(), s.carol.clone()]
+            )
+        );
     }
 
     #[test]
