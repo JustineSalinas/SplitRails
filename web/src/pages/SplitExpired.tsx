@@ -146,7 +146,7 @@ export function SplitExpired() {
         @keyframes wedge-fade { 0% { opacity: 0.85; } 100% { opacity: 0.4; } }
       `}</style>
 
-      <main className="max-w-[1120px] mx-auto px-10 pt-10">
+      <main className="max-w-[1120px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-10 max-sm:pt-6">
         {/* Status banner */}
         <div className="bg-neutral-light rounded-[14px] p-6 flex flex-wrap items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-4">
@@ -202,8 +202,8 @@ export function SplitExpired() {
         <div className="grid grid-cols-[1fr_1.3fr] gap-5 max-[900px]:grid-cols-1">
           {/* Left: donut viz */}
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card min-h-[400px] flex flex-col items-center justify-center p-10">
-            <div className="relative w-[260px] h-[260px]">
-              <svg width="260" height="260" viewBox="0 0 100 100" className="-rotate-90">
+            <div className="relative w-[260px] h-[260px] max-sm:w-[220px] max-sm:h-[220px]">
+              <svg width="100%" height="100%" viewBox="0 0 100 100" className="-rotate-90">
                 <defs>
                   <linearGradient id="pieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#007AFF" />

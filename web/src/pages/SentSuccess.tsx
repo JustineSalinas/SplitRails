@@ -80,7 +80,7 @@ export function SentSuccess() {
 
   return (
     <div className="text-text-primary font-sans">
-      <main className="max-w-[640px] mx-auto px-10 pt-14 pb-24">
+      <main className="max-w-[640px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-14 max-sm:pt-8 pb-24">
         {/* Success state */}
         <div className="text-center mb-8">
           <div className="w-[72px] h-[72px] rounded-full bg-success-light flex items-center justify-center mx-auto mb-5">
@@ -149,18 +149,18 @@ export function SentSuccess() {
         </div>
 
         {/* Share to */}
-        <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 pb-6 mb-6">
+        <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 max-sm:p-4 pb-6 mb-6">
           <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-3.5">
             Share the link
           </div>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-1.5 max-sm:gap-1">
             <button
               type="button"
               onClick={shareGeneric}
               className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer p-1.5 rounded-xl hover:bg-info-light hover:-translate-y-px transition-[background,transform] duration-150"
             >
               <div
-                className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[22px]"
+                className="w-[52px] h-[52px] max-sm:w-11 max-sm:h-11 rounded-full flex items-center justify-center text-white text-[22px] max-sm:text-lg"
                 style={{ background: GRADIENT }}
               >
                 <span className="msym">ios_share</span>
@@ -172,7 +172,7 @@ export function SentSuccess() {
               onClick={shareMessenger}
               className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer p-1.5 rounded-xl hover:bg-info-light hover:-translate-y-px transition-[background,transform] duration-150"
             >
-              <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[22px] bg-[#0084FF]">
+              <div className="w-[52px] h-[52px] max-sm:w-11 max-sm:h-11 rounded-full flex items-center justify-center text-white text-[22px] max-sm:text-lg bg-[#0084FF]">
                 <span className="msym">forum</span>
               </div>
               <span className="text-[11px] font-semibold text-text-secondary">Messenger</span>
@@ -183,7 +183,7 @@ export function SentSuccess() {
               className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer p-1.5 rounded-xl hover:bg-info-light hover:-translate-y-px transition-[background,transform] duration-150"
             >
               <div
-                className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[22px]"
+                className="w-[52px] h-[52px] max-sm:w-11 max-sm:h-11 rounded-full flex items-center justify-center text-white text-[22px] max-sm:text-lg"
                 style={{ background: INSTAGRAM_GRADIENT }}
               >
                 <span className="msym">photo_camera</span>
@@ -195,7 +195,7 @@ export function SentSuccess() {
               onClick={shareWhatsapp}
               className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer p-1.5 rounded-xl hover:bg-info-light hover:-translate-y-px transition-[background,transform] duration-150"
             >
-              <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[22px] bg-[#25D366]">
+              <div className="w-[52px] h-[52px] max-sm:w-11 max-sm:h-11 rounded-full flex items-center justify-center text-white text-[22px] max-sm:text-lg bg-[#25D366]">
                 <span className="msym">chat</span>
               </div>
               <span className="text-[11px] font-semibold text-text-secondary">WhatsApp</span>
@@ -205,7 +205,7 @@ export function SentSuccess() {
               onClick={shareEmail}
               className="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer p-1.5 rounded-xl hover:bg-info-light hover:-translate-y-px transition-[background,transform] duration-150"
             >
-              <div className="w-[52px] h-[52px] rounded-full flex items-center justify-center text-white text-[22px] bg-text-secondary">
+              <div className="w-[52px] h-[52px] max-sm:w-11 max-sm:h-11 rounded-full flex items-center justify-center text-white text-[22px] max-sm:text-lg bg-text-secondary">
                 <span className="msym">mail</span>
               </div>
               <span className="text-[11px] font-semibold text-text-secondary">Email</span>

@@ -140,7 +140,7 @@ export function ReviewSplit() {
   return (
     <div className="text-text-primary font-sans">
       {/* Breadcrumb + step */}
-      <div className="max-w-[1240px] mx-auto px-10 pt-6 flex items-center justify-between flex-wrap gap-3">
+      <div className="max-w-[1240px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-6 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2 text-[13px] text-text-secondary">
           <Link to="/" className="text-text-secondary hover:text-text-primary">
             Splits
@@ -152,7 +152,7 @@ export function ReviewSplit() {
           <span className="msym text-sm text-text-muted">chevron_right</span>
           <span className="text-text-primary font-semibold">Review</span>
         </div>
-        <div className="flex items-center gap-2.5 text-xs text-text-secondary">
+        <div className="flex items-center gap-2.5 text-xs text-text-secondary max-sm:hidden">
           <div className="flex items-center gap-1.5">
             <div className="w-[22px] h-[22px] rounded-full bg-success-light text-success flex items-center justify-center">
               <span className="msym text-sm">check</span>
@@ -176,7 +176,7 @@ export function ReviewSplit() {
         </div>
       </div>
 
-      <main className="max-w-[1240px] mx-auto px-10 pt-6 pb-20">
+      <main className="max-w-[1240px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-6 pb-20">
         {/* Header */}
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
@@ -193,7 +193,7 @@ export function ReviewSplit() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-[1fr_420px] gap-6 items-start">
+        <div className="grid grid-cols-[1fr_420px] max-lg:grid-cols-1 gap-6 items-start">
           {/* Left column */}
           <div className="flex flex-col gap-5">
             {/* Summary card */}
@@ -215,7 +215,7 @@ export function ReviewSplit() {
                 </span>
               </div>
               <hr className="h-[0.5px] bg-border/60 border-none my-4" />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-4">
                 <div>
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1">
                     Total to seller
@@ -305,7 +305,7 @@ export function ReviewSplit() {
           </div>
 
           {/* Right column: sticky preview */}
-          <div className="sticky top-20">
+          <div className="sticky top-20 max-lg:static">
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-6 flex flex-col items-center">
               <div className="mb-5">
                 <DonutChart

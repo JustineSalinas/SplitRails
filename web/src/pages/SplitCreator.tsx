@@ -245,7 +245,7 @@ export function SplitCreator() {
   return (
     <div className="text-text-primary font-sans">
       {/* Breadcrumb + step */}
-      <div className="max-w-[1240px] mx-auto px-10 pt-6 flex items-center justify-between flex-wrap gap-3">
+      <div className="max-w-[1240px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-6 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2 text-[13px] text-text-secondary">
           <Link to="/" className="text-text-secondary hover:text-text-primary">
             Splits
@@ -254,7 +254,7 @@ export function SplitCreator() {
           <span className="text-text-primary font-semibold">New split</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5 text-xs text-text-secondary">
+          <div className="flex items-center gap-2.5 text-xs text-text-secondary max-sm:hidden">
             <div className="flex items-center gap-1.5">
               <div className="w-[22px] h-[22px] rounded-full bg-info text-white flex items-center justify-center text-[11px] font-bold">
                 1
@@ -285,20 +285,20 @@ export function SplitCreator() {
         </div>
       </div>
 
-      <main className="max-w-[1240px] mx-auto px-10 pt-6 pb-20">
+      <main className="max-w-[1240px] mx-auto px-10 max-md:px-6 max-sm:px-4 pt-6 pb-20">
         {/* Hero: total amount */}
-        <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card py-9 px-6 mb-6 text-center">
+        <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card py-9 max-sm:py-6 px-6 max-sm:px-4 mb-6 text-center">
           <div className="text-sm font-extrabold tracking-[0.08em] uppercase text-action mb-3">
             Total amount
           </div>
           <div className="flex items-baseline justify-center gap-1">
-            <span className="text-[32px] font-medium text-text-secondary">$</span>
+            <span className="text-[32px] max-sm:text-xl font-medium text-text-secondary">$</span>
             <input
               type="text"
               value={totalInput}
               onChange={(e) => setTotalInput(e.target.value)}
               placeholder="0.00"
-              className="text-[72px] font-bold tracking-tight leading-none border-none bg-transparent outline-none text-center w-full max-w-[420px] text-text-primary font-sans"
+              className="text-[72px] max-sm:text-[48px] font-bold tracking-tight leading-none border-none bg-transparent outline-none text-center w-full max-w-[420px] text-text-primary font-sans"
             />
           </div>
           <div className="flex gap-2 justify-center mt-5 flex-wrap items-center">
@@ -316,12 +316,12 @@ export function SplitCreator() {
           </div>
         </div>
 
-        <div className="grid grid-cols-[1fr_420px] gap-6 items-start">
+        <div className="grid grid-cols-[1fr_420px] max-lg:grid-cols-1 gap-6 items-start">
           {/* Left column */}
           <div className="flex flex-col gap-6">
             {/* Split method */}
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5">
-              <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center justify-between mb-3.5 flex-wrap gap-2">
                 <div>
                   <div className="text-[15px] font-semibold tracking-tight">How should it split?</div>
                   <div className="text-xs text-text-secondary mt-0.5">
@@ -523,7 +523,7 @@ export function SplitCreator() {
             {/* Details */}
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5">
               <div className="text-[15px] font-semibold tracking-tight mb-3.5">Details</div>
-              <div className="grid grid-cols-2 gap-x-10 gap-y-4.5">
+              <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-x-10 max-sm:gap-x-0 gap-y-4.5">
                 <div>
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
                     Label
@@ -572,7 +572,7 @@ export function SplitCreator() {
                 Real values used to open the on-chain escrow — this contract only holds one invoice at a
                 time, so double-check these before sending.
               </div>
-              <div className="grid grid-cols-2 gap-x-10 gap-y-4.5">
+              <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-x-10 max-sm:gap-x-0 gap-y-4.5">
                 <div>
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
                     Vendor address
@@ -604,7 +604,7 @@ export function SplitCreator() {
           </div>
 
           {/* Right column: sticky preview */}
-          <div className="sticky top-20">
+          <div className="sticky top-20 max-lg:static">
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-6 flex flex-col items-center">
               <div className="mb-5">
                 <DonutChart

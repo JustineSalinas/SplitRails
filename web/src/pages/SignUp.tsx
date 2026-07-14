@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import logo from '../assets/finalsplitrailsicon.webp'
 
 const inputClasses =
   'w-full box-border py-3 px-3.5 rounded-[10px] border-[0.5px] border-border text-sm font-sans text-text-primary outline-none focus:border-info focus:shadow-[0_0_0_2px_rgba(0,122,255,0.1)]'
@@ -22,20 +23,18 @@ export function SignUp() {
     <div className="min-h-screen bg-bg text-text-primary font-sans flex items-center justify-center p-6">
       <div className="w-full max-w-[400px]">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-[9px] bg-gradient-brand flex items-center justify-center text-white font-bold text-base">
-            S
-          </div>
+          <img src={logo} alt="SplitRails" className="w-8 h-8 rounded-[9px] object-cover" />
           <span className="text-[19px] font-semibold tracking-tight">SplitRails</span>
         </div>
 
-        <div className="bg-white border-[0.5px] border-border/50 rounded-2xl shadow-card p-8">
+        <div className="bg-white border-[0.5px] border-border/50 rounded-2xl shadow-card p-8 max-sm:p-6">
           <h1 className="text-2xl font-bold tracking-tight m-0 mb-1.5 text-center">Create your account</h1>
           <p className="text-sm text-text-secondary m-0 mb-6 text-center">
             Split bills, settled instantly on Stellar
           </p>
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 max-[380px]:grid-cols-1 gap-3 mb-4">
               <div>
                 <label htmlFor="firstName" className="text-[13px] font-semibold text-text-primary mb-1.5 block">
                   First name

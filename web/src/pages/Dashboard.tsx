@@ -6,12 +6,14 @@ import { SplitCard } from '../components/SplitCard'
 export function Dashboard() {
   return (
     <>
-      <main className="max-w-[1240px] mx-auto px-10 py-8">
+      <main className="max-w-[1240px] mx-auto px-10 max-md:px-6 max-sm:px-4 py-8 max-sm:py-5">
         {/* Page header */}
         <section className="flex items-end justify-between gap-6 flex-wrap mb-7">
           <div>
-            <h1 className="text-[34px] font-bold tracking-tight m-0 mb-1.5 leading-[1.1]">Your Splits</h1>
-            <p className="text-text-secondary text-[15px] m-0">
+            <h1 className="text-[34px] max-sm:text-2xl font-bold tracking-tight m-0 mb-1.5 leading-[1.1]">
+              Your Splits
+            </h1>
+            <p className="text-text-secondary text-[15px] max-sm:text-[13px] m-0">
               3 need your attention · 2 waiting on others · 4 settled this month
             </p>
           </div>
@@ -26,7 +28,7 @@ export function Dashboard() {
         </section>
 
         {/* Actionable stats */}
-        <section className="grid grid-cols-3 gap-4 mb-8">
+        <section className="grid grid-cols-3 max-md:grid-cols-1 gap-4 mb-8">
           <div className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-[22px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
@@ -82,7 +84,7 @@ export function Dashboard() {
 
         {/* Filter bar */}
         <section className="flex items-center justify-between gap-4 flex-wrap mb-5">
-          <div className="inline-flex p-[3px] bg-neutral-light rounded-[10px] gap-0.5">
+          <div className="inline-flex p-[3px] bg-neutral-light rounded-[10px] gap-0.5 max-w-full overflow-x-auto">
             <button
               type="button"
               className="border-none bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06)] py-1.5 px-3.5 rounded-lg text-xs font-semibold text-text-primary cursor-pointer inline-flex items-center gap-1.5"
@@ -121,10 +123,8 @@ export function Dashboard() {
         </section>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-4">
           {/* <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 75.4, strokeColor: 'var(--color-action)' }}
-            icon={{ name: 'restaurant', filled: true, color: 'var(--color-action)' }}
             chip={{ label: 'Approve split', variant: 'action' }}
             title="Aspen Ski Trip"
             subtitle="Lodging & gear · 4 of 6 paid"
@@ -136,38 +136,35 @@ export function Dashboard() {
                   </div>
                   <div className="font-mono text-[17px] font-semibold">$408.33</div>
                 </div>
-                <Button variant="nudge">Approve →</Button>
+                <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-action">
+                  Approve <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                </span>
               </div>
             }
           /> */}
 
-          <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 90.5, strokeColor: 'var(--color-action)' }}
-            icon={{ name: 'local_dining', filled: true, color: 'var(--color-action)' }}
-            chip={{ label: 'Pay Alex', variant: 'action' }}
-            title="Office Dinner"
-            subtitle="Sora · settled with 5 of 6"
-            footer={
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
-                    You owe
+          <Link to="/pay" className="contents">
+            <SplitCard
+              chip={{ label: 'Pay Alex', variant: 'action' }}
+              title="Office Dinner"
+              subtitle="Sora · settled with 5 of 6"
+              footer={
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
+                      You owe
+                    </div>
+                    <div className="font-mono text-[17px] font-semibold text-action-hover">$75.33</div>
                   </div>
-                  <div className="font-mono text-[17px] font-semibold text-action-hover">$75.33</div>
+                  <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-action">
+                    Pay now <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                  </span>
                 </div>
-                <Link
-                  to="/pay"
-                  className={`${buttonBaseClasses} ${buttonVariantClasses.nudge}`}
-                >
-                  Pay now →
-                </Link>
-              </div>
-            }
-          />
+              }
+            />
+          </Link>
 
           <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 0, strokeColor: 'var(--color-action)', dashedTrack: true }}
-            icon={{ name: 'edit_note', filled: false, color: 'var(--color-action)' }}
             chip={{ label: 'Finish draft', variant: 'action' }}
             title="Project Setup"
             subtitle="Tool subscriptions · started 2d ago"
@@ -179,14 +176,14 @@ export function Dashboard() {
                   </div>
                   <div className="font-mono text-[17px] font-semibold text-text-muted">—</div>
                 </div>
-                <Button variant="nudge">Continue →</Button>
+                <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-action">
+                  Continue <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                </span>
               </div>
             }
           />
 
           {/* <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 37.7, strokeColor: 'gradient' }}
-            icon={{ name: 'content_cut', filled: true, gradient: true }}
             chip={{ label: 'Waiting on 4', variant: 'waiting' }}
             title="Beach House"
             subtitle="2 of 6 confirmed splits"
@@ -202,69 +199,66 @@ export function Dashboard() {
             }
           /> */}
 
-          <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 94.2, strokeColor: 'gradient' }}
-            icon={{ name: 'shopping_cart', filled: true, gradient: true }}
-            chip={{ label: 'Waiting on 1', variant: 'waiting' }}
-            title="Weekly Groceries"
-            subtitle="Shared pantry · 5 of 6 paid"
-            footer={
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Avatar initials="JD" bg="#FFDBCC" />
-                  <span className="text-xs text-text-secondary">Jordan · 3d overdue</span>
-                </div>
-                <Link to="/audit" className={`${buttonBaseClasses} ${buttonVariantClasses.nudge}`}>
-                  View →
-                </Link>
-              </div>
-            }
-          />
-
-          <SplitCard
-            ring={{ trackColor: 'var(--color-success-light)', arc: 113.1, strokeColor: 'var(--color-success)' }}
-            icon={{ name: 'check', filled: true, color: 'var(--color-success)' }}
-            chip={{ label: 'Settled', variant: 'done' }}
-            title="Concert Tickets"
-            subtitle="Refund distributed · Jul 3"
-            footer={
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
-                    Returned
+          <Link to="/audit" className="contents">
+            <SplitCard
+              chip={{ label: 'Waiting on 1', variant: 'waiting' }}
+              title="Weekly Groceries"
+              subtitle="Shared pantry · 5 of 6 paid"
+              footer={
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Avatar initials="JD" bg="#FFDBCC" />
+                    <span className="text-xs text-text-secondary">Jordan · 3d overdue</span>
                   </div>
-                  <div className="font-mono text-[17px] font-semibold">$120.00</div>
+                  <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-text-secondary">
+                    View <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                  </span>
                 </div>
-                <Link to="/audit-complete" className={`${buttonBaseClasses} ${buttonVariantClasses.success}`}>
-                  Complete
-                </Link>
-              </div>
-            }
-          />
+              }
+            />
+          </Link>
 
-          <SplitCard
-            ring={{ trackColor: 'var(--color-neutral-light)', arc: 113.1, strokeColor: 'var(--color-neutral)' }}
-            icon={{ name: 'history_toggle_off', filled: true, color: 'var(--color-neutral)' }}
-            chip={{ label: 'Expired', variant: 'waiting' }}
-            title="Ski Trip Deposit"
-            subtitle="Deadline passed · all contributors refunded"
-            footer={
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
-                    Refunded
+          <Link to="/audit-complete" className="contents">
+            <SplitCard
+              chip={{ label: 'Settled', variant: 'done' }}
+              title="Concert Tickets"
+              subtitle="Refund distributed · Jul 3"
+              footer={
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
+                      Returned
+                    </div>
+                    <div className="font-mono text-[17px] font-semibold">$120.00</div>
                   </div>
-                  <div className="font-mono text-[17px] font-semibold">$860.00</div>
+                  <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-success">
+                    Complete <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                  </span>
                 </div>
-                <Link
-                  to="/expired"
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold bg-neutral-light text-text-secondary hover:bg-neutral/20"
-                >
-                  Auto-refunded
-                </Link>
-              </div>
-            }
-          />
+              }
+            />
+          </Link>
+
+          <Link to="/expired" className="contents">
+            <SplitCard
+              chip={{ label: 'Expired', variant: 'waiting' }}
+              title="Ski Trip Deposit"
+              subtitle="Deadline passed · all contributors refunded"
+              footer={
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
+                      Refunded
+                    </div>
+                    <div className="font-mono text-[17px] font-semibold">$860.00</div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-text-secondary">
+                    Auto-refunded <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                  </span>
+                </div>
+              }
+            />
+          </Link>
         </div>
       </main>
     </>
