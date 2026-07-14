@@ -24,7 +24,7 @@ if (typeof window !== "undefined") {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CCV6VD2XK2ZQC2DD3L5ZY6GNYPWAL2VLR73SNUB6EQOCLYYWTWW5DNUQ",
+    contractId: "CCXBJ3ZDLFHO4HZN3ODZTHFLLWAEYELN6V5QMUBNFUS3PBFYLBWSZQVI",
   }
 } as const
 
@@ -87,6 +87,15 @@ export interface Client {
    */
   is_cleared: ({participant}: {participant: string}, options?: MethodOptions) => Promise<AssembledTransaction<boolean>>
 
+  /**
+   * Construct and simulate a get_participants transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * The full roster of participant addresses on this invoice, in the
+   * order they were passed to `init`. Lets the frontend enumerate rows
+   * to query with `get_share`/`is_cleared` instead of needing them
+   * hardcoded off-chain.
+   */
+  get_participants: (options?: MethodOptions) => Promise<AssembledTransaction<Array<string>>>
+
 }
 export class Client extends ContractClient {
   static async deploy<T = Client>(
@@ -114,7 +123,8 @@ export class Client extends ContractClient {
         "AAAAAgAAAAAAAAAAAAAABlN0YXR1cwAAAAAAAwAAAAAAAAAAAAAABE9wZW4AAAAAAAAAAAAAAAhSZWxlYXNlZAAAAAAAAAAAAAAAClJvbGxlZEJhY2sAAA==",
         "AAAAAAAAAAAAAAAJZ2V0X3NoYXJlAAAAAAAAAQAAAAAAAAALcGFydGljaXBhbnQAAAAAEwAAAAEAAAAL",
         "AAAAAAAAAAAAAAAKZ2V0X3RvdGFscwAAAAAAAAAAAAEAAAPtAAAAAgAAAAsAAAAL",
-        "AAAAAAAAAI1IYXMgdGhpcyBzcGVjaWZpYyBwYXJ0aWNpcGFudCBwYWlkIHRoZWlyIHNoYXJlIHlldD8gTGV0cyB0aGUKZnJvbnRlbmQvc3luYyB3b3JrZXIgc2hvdyAibG9ja2VkIHZzIHJlcXVpcmVkIiBwZXIgcm93IHdpdGhvdXQKcmVwbGF5aW5nIGV2ZW50cy4AAAAAAAAKaXNfY2xlYXJlZAAAAAAAAQAAAAAAAAALcGFydGljaXBhbnQAAAAAEwAAAAEAAAAB" ]),
+        "AAAAAAAAAI1IYXMgdGhpcyBzcGVjaWZpYyBwYXJ0aWNpcGFudCBwYWlkIHRoZWlyIHNoYXJlIHlldD8gTGV0cyB0aGUKZnJvbnRlbmQvc3luYyB3b3JrZXIgc2hvdyAibG9ja2VkIHZzIHJlcXVpcmVkIiBwZXIgcm93IHdpdGhvdXQKcmVwbGF5aW5nIGV2ZW50cy4AAAAAAAAKaXNfY2xlYXJlZAAAAAAAAQAAAAAAAAALcGFydGljaXBhbnQAAAAAEwAAAAEAAAAB",
+        "AAAAAAAAANdUaGUgZnVsbCByb3N0ZXIgb2YgcGFydGljaXBhbnQgYWRkcmVzc2VzIG9uIHRoaXMgaW52b2ljZSwgaW4gdGhlCm9yZGVyIHRoZXkgd2VyZSBwYXNzZWQgdG8gYGluaXRgLiBMZXRzIHRoZSBmcm9udGVuZCBlbnVtZXJhdGUgcm93cwp0byBxdWVyeSB3aXRoIGBnZXRfc2hhcmVgL2Bpc19jbGVhcmVkYCBpbnN0ZWFkIG9mIG5lZWRpbmcgdGhlbQpoYXJkY29kZWQgb2ZmLWNoYWluLgAAAAAQZ2V0X3BhcnRpY2lwYW50cwAAAAAAAAABAAAD6gAAABM=" ]),
       options
     )
     this.options = options
@@ -126,6 +136,7 @@ export class Client extends ContractClient {
         status: this.txFromJSON<Status>,
         get_share: this.txFromJSON<i128>,
         get_totals: this.txFromJSON<readonly [i128, i128]>,
-        is_cleared: this.txFromJSON<boolean>
+        is_cleared: this.txFromJSON<boolean>,
+        get_participants: this.txFromJSON<Array<string>>
   }
 }

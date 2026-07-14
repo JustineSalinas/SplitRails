@@ -86,3 +86,9 @@ export async function isParticipantCleared(participant: string) {
   const tx = await client.is_cleared({ participant })
   return tx.result
 }
+
+export async function getEscrowParticipants() {
+  const client = getEscrowClient()
+  const tx = await client.get_participants()
+  return tx.result
+}
