@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
+import { baseUnitsToDollars } from '../lib/amounts'
+import { getEscrowStatus, getEscrowTotals, type EscrowStatus } from '../lib/escrow'
 
 interface Contribution {
   id: number
@@ -50,12 +52,45 @@ function CopyHash({ hash }: HashEvent) {
   )
 }
 
+function statusLabel(status: EscrowStatus | null) {
+  if (!status) return null
+  if (status.tag === 'Open') return { label: 'Open', className: 'bg-action/[0.14] text-action-hover' }
+  if (status.tag === 'Released') return { label: 'Settled', className: 'bg-success-light text-success' }
+  return { label: 'Rolled back', className: 'bg-neutral-light text-text-secondary' }
+}
+
 export function AuditLedger() {
+  const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
+  const [liveStatus, setLiveStatus] = useState<EscrowStatus | null>(null)
+  const [liveError, setLiveError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadLiveData() {
+      try {
+        const [totals, status] = await Promise.all([getEscrowTotals(), getEscrowStatus()])
+        if (cancelled) return
+        setLiveTotals({ cleared: baseUnitsToDollars(totals[1]), required: baseUnitsToDollars(totals[0]) })
+        setLiveStatus(status)
+      } catch (err) {
+        if (!cancelled) setLiveError(err instanceof Error ? err.message : 'Could not load on-chain data')
+      }
+    }
+    loadLiveData()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const totalSettled = liveTotals?.cleared ?? TOTAL_SETTLED
+  const goal = liveTotals?.required ?? GOAL
+  const badge = statusLabel(liveStatus)
+
   function handleExportCsv() {
     const rows = [
       ['Participant', 'Amount'],
       ...contributions.map((c) => [c.name, c.amount.toFixed(2)]),
-      ['Total settled', TOTAL_SETTLED.toFixed(2)],
+      ['Total settled', totalSettled.toFixed(2)],
     ]
     const csv = rows.map((row) => row.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
@@ -84,10 +119,15 @@ export function AuditLedger() {
             </nav>
             <h1 className="text-[32px] font-bold tracking-tight m-0 mb-1.5">Dinner at Nobu</h1>
             <div className="flex items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-bold bg-success-light text-success">
-                <span className="msym fill text-base">check_circle</span>Settled
+              <span
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-bold ${badge?.className ?? 'bg-success-light text-success'}`}
+              >
+                <span className="msym fill text-base">check_circle</span>
+                {badge?.label ?? 'Settled'}
               </span>
-              <span className="text-[13px] text-text-muted">Closed Oct 24, 2023 · 14:32</span>
+              <span className="text-[13px] text-text-muted">
+                {liveError ? 'Live data unavailable' : 'Closed Oct 24, 2023 · 14:32'}
+              </span>
             </div>
           </div>
           <div className="flex gap-2.5">
@@ -114,10 +154,10 @@ export function AuditLedger() {
               <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-2">
                 Total settled
               </div>
-              <div className="text-[32px] font-bold tracking-tight mb-5">${TOTAL_SETTLED.toFixed(2)}</div>
+              <div className="text-[32px] font-bold tracking-tight mb-5">${totalSettled.toFixed(2)}</div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-[13px] text-text-secondary">Goal</span>
-                <span className="font-mono text-[13px] font-semibold">${GOAL.toFixed(2)}</span>
+                <span className="font-mono text-[13px] font-semibold">${goal.toFixed(2)}</span>
               </div>
               <hr className="h-[0.5px] bg-border/50 border-none" />
               <div className="flex items-center justify-between py-2.5">

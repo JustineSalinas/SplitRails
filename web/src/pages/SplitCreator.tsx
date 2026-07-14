@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { DatePicker } from '../components/DatePicker'
 import { DonutChart } from '../components/DonutChart'
 import { ParticipantRow } from '../components/ParticipantRow'
 import { Select } from '../components/Select'
+import { useWallet } from '../context/WalletContext'
+import { isValidStellarAddress } from '../lib/amounts'
+import type { EscrowDraft } from '../lib/escrowDraft'
 
 type SplitMethod = 'equal' | 'percent' | 'amount'
 
@@ -14,6 +17,7 @@ interface Participant {
   avatarBg: string
   donutColor?: string
   initials: string
+  address: string
   amount: number
   locked: boolean
   paid?: boolean
@@ -39,6 +43,7 @@ const initialParticipants: Participant[] = [
     avatarBg: GRADIENT,
     isPayer: true,
     initials: 'RM',
+    address: '',
     amount: 113,
     locked: false,
     paid: true,
@@ -51,6 +56,7 @@ const initialParticipants: Participant[] = [
     avatarBg: '#C64F00',
     donutColor: '#5E5CE6',
     initials: 'AS',
+    address: '',
     amount: 113,
     locked: false,
     removable: true,
@@ -62,6 +68,7 @@ const initialParticipants: Participant[] = [
     avatarBg: '#263143',
     donutColor: '#0EA5A5',
     initials: 'MK',
+    address: '',
     amount: 113,
     locked: false,
     removable: true,
@@ -73,6 +80,7 @@ const initialParticipants: Participant[] = [
     avatarBg: '#5c5f61',
     donutColor: '#8E8E93',
     initials: 'TR',
+    address: '',
     amount: 113,
     locked: false,
     removable: true,
@@ -88,6 +96,8 @@ function splitEvenly(list: Participant[], total: number): Participant[] {
 }
 
 export function SplitCreator() {
+  const navigate = useNavigate()
+  const { address: myAddress, connect } = useWallet()
   const [totalInput, setTotalInput] = useState('452.00')
   const [method, setMethod] = useState<SplitMethod>('equal')
   const [participants, setParticipants] = useState<Participant[]>(initialParticipants)
@@ -95,6 +105,14 @@ export function SplitCreator() {
   const [category, setCategory] = useState('Food & drink')
   const [dueDate, setDueDate] = useState('2026-07-20')
   const [autoNudge, setAutoNudge] = useState('After 3 days overdue')
+  const [vendorAddress, setVendorAddress] = useState('')
+  const [tokenAddress, setTokenAddress] = useState('')
+
+  // The payer's own address defaults to the connected wallet unless they
+  // override it, so we never need to sync wallet state into participant state.
+  function participantAddress(p: Participant): string {
+    return p.isPayer && !p.address ? (myAddress ?? '') : p.address
+  }
 
   const total = Number(totalInput) || 0
   const payer = participants.find((p) => p.isPayer)
@@ -137,6 +155,7 @@ export function SplitCreator() {
         avatarBg: PALETTE[prev.length % PALETTE.length],
         donutColor: DONUT_PALETTE[prev.length % DONUT_PALETTE.length],
         initials: '??',
+        address: '',
         amount: 0,
         locked: false,
         removable: true,
@@ -160,6 +179,43 @@ export function SplitCreator() {
       const original = initialParticipants[i]
       return original && p.id === original.id && p.amount === original.amount && p.locked === original.locked
     })
+
+  const reviewError = !balanced
+    ? `Shares must add up to $${total.toFixed(2)}`
+    : !isValidStellarAddress(vendorAddress)
+      ? 'Enter a valid vendor address'
+      : !isValidStellarAddress(tokenAddress)
+        ? 'Enter a valid token contract address'
+        : participants.some((p) => !isValidStellarAddress(participantAddress(p)))
+          ? 'Every participant needs a valid Stellar address'
+          : !dueDate
+            ? 'Set a payment due date'
+            : null
+  const reviewReady = reviewError === null
+
+  function handleReview() {
+    if (!reviewReady) return
+    const deadlineUnix = Math.floor(new Date(`${dueDate}T23:59:59Z`).getTime() / 1000)
+    const draft: EscrowDraft = {
+      label,
+      vendorAddress: vendorAddress.trim(),
+      tokenAddress: tokenAddress.trim(),
+      dueDate,
+      deadlineUnix,
+      total,
+      participants: participants.map((p) => ({
+        id: p.id,
+        name: p.name,
+        initials: p.initials,
+        avatarBg: p.avatarBg,
+        donutColor: p.donutColor,
+        address: participantAddress(p).trim(),
+        amount: p.amount,
+        isPayer: p.isPayer,
+      })),
+    }
+    navigate('/review', { state: draft })
+  }
 
   return (
     <div className="text-text-primary font-sans">
@@ -418,6 +474,8 @@ export function SplitCreator() {
                     locked={p.locked}
                     paid={p.paid}
                     removable={p.removable}
+                    address={participantAddress(p)}
+                    onAddressChange={(address) => updateParticipant(p.id, { address })}
                     onNameChange={(name) => updateParticipant(p.id, { name })}
                     onAmountChange={(amount) => updateParticipant(p.id, { amount })}
                     onToggleLock={() => updateParticipant(p.id, { locked: !p.locked })}
@@ -481,6 +539,43 @@ export function SplitCreator() {
                 </div>
               </div>
             </div>
+
+            {/* On-chain settlement details */}
+            <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5">
+              <div className="text-[15px] font-semibold tracking-tight mb-1">Escrow settlement</div>
+              <div className="text-xs text-text-secondary mb-3.5">
+                Real values used to open the on-chain escrow — this contract only holds one invoice at a
+                time, so double-check these before sending.
+              </div>
+              <div className="grid grid-cols-2 gap-x-10 gap-y-4.5">
+                <div>
+                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
+                    Vendor address
+                  </div>
+                  <input
+                    type="text"
+                    value={vendorAddress}
+                    onChange={(e) => setVendorAddress(e.target.value)}
+                    placeholder="G… (who gets paid)"
+                    spellCheck={false}
+                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none"
+                  />
+                </div>
+                <div>
+                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
+                    Token contract
+                  </div>
+                  <input
+                    type="text"
+                    value={tokenAddress}
+                    onChange={(e) => setTokenAddress(e.target.value)}
+                    placeholder="C… (testnet USDC SAC)"
+                    spellCheck={false}
+                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right column: sticky preview */}
@@ -535,12 +630,28 @@ export function SplitCreator() {
                 </div>
               </div>
 
-              <Link
-                to="/review"
-                className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98"
-              >
-                Review split <span className="msym text-lg">arrow_forward</span>
-              </Link>
+              {!myAddress ? (
+                <button
+                  type="button"
+                  onClick={connect}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98"
+                >
+                  <span className="msym text-base">account_balance_wallet</span> Connect wallet to continue
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!reviewReady}
+                  onClick={handleReview}
+                  title={reviewError ?? undefined}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Review split <span className="msym text-lg">arrow_forward</span>
+                </button>
+              )}
+              {myAddress && reviewError && (
+                <div className="mt-2 text-[11px] text-[#93000a] text-center">{reviewError}</div>
+              )}
 
               <div className="mt-3 flex items-center gap-1.5 text-[11px] text-text-muted">
                 <span className="msym text-sm">lock</span>

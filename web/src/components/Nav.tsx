@@ -1,11 +1,18 @@
 import { NavLink } from 'react-router-dom'
+import { useWallet } from '../context/WalletContext'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `py-[18px] px-1 text-[13px] font-semibold tracking-wide border-b-2 cursor-pointer ${
     isActive ? 'text-text-primary border-info' : 'text-text-secondary border-transparent'
   }`
 
+function truncateAddress(address: string) {
+  return `${address.slice(0, 4)}…${address.slice(-4)}`
+}
+
 export function Nav() {
+  const { address, connecting, error, connect } = useWallet()
+
   return (
     <header className="sticky top-0 z-50 bg-bg/85 backdrop-blur-xl border-b-[0.5px] border-border">
       <div className="flex items-center justify-between h-14 px-10 max-w-[1240px] mx-auto">
@@ -45,9 +52,26 @@ export function Nav() {
           >
             <span className="msym">notifications</span>
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold cursor-pointer">
-            RM
-          </div>
+          {address ? (
+            <div
+              title={address}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success-light text-success text-[13px] font-mono font-semibold"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
+              {truncateAddress(address)}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={connect}
+              disabled={connecting}
+              title={error ?? undefined}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-brand text-white text-[13px] font-semibold cursor-pointer disabled:opacity-60"
+            >
+              <span className="msym text-base">account_balance_wallet</span>
+              {connecting ? 'Connecting…' : 'Connect wallet'}
+            </button>
+          )}
         </div>
       </div>
     </header>

@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Avatar } from '../components/Avatar'
+import { useWallet } from '../context/WalletContext'
+import { baseUnitsToDollars } from '../lib/amounts'
+import { getEscrowTotals, settleShare } from '../lib/escrow'
 
 const GOAL = 1850
 const CLOSES_IN_SECONDS = 8 * 60 + 28
@@ -30,8 +33,12 @@ function formatCountdown(totalSeconds: number) {
 }
 
 export function ViewAudit() {
+  const { address, connecting, error: walletError, connect } = useWallet()
   const [secondsLeft, setSecondsLeft] = useState(CLOSES_IN_SECONDS)
   const [participants, setParticipants] = useState(initialParticipants)
+  const [locking, setLocking] = useState(false)
+  const [lockError, setLockError] = useState<string | null>(null)
+  const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,12 +47,39 @@ export function ViewAudit() {
     return () => clearInterval(interval)
   }, [])
 
-  function handleLockMe() {
-    setParticipants((prev) => prev.map((p) => (p.isMe ? { ...p, locked: true } : p)))
+  useEffect(() => {
+    let cancelled = false
+    getEscrowTotals()
+      .then((totals) => {
+        if (!cancelled) setLiveTotals({ cleared: baseUnitsToDollars(totals[1]), required: baseUnitsToDollars(totals[0]) })
+      })
+      .catch(() => {
+        // no live escrow to read yet — fall back to the mock totals below
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function handleLockMe() {
+    if (!address) {
+      await connect()
+      return
+    }
+    setLocking(true)
+    setLockError(null)
+    try {
+      await settleShare(address, address)
+      setParticipants((prev) => prev.map((p) => (p.isMe ? { ...p, locked: true } : p)))
+    } catch (err) {
+      setLockError(err instanceof Error ? err.message : 'Failed to settle your share')
+    } finally {
+      setLocking(false)
+    }
   }
 
-  const lockedAmount = participants.reduce((sum, p) => sum + (p.locked ? (p.amount ?? 0) : 0), 0)
-  const totalPot = participants.reduce((sum, p) => sum + (p.amount ?? 0), 0)
+  const lockedAmount = liveTotals?.cleared ?? participants.reduce((sum, p) => sum + (p.locked ? (p.amount ?? 0) : 0), 0)
+  const totalPot = liveTotals?.required ?? participants.reduce((sum, p) => sum + (p.amount ?? 0), 0)
   const partiesJoined = participants.filter((p) => p.joined).length
   const committedPct = Math.round((lockedAmount / GOAL) * 100)
   const circumference = 2 * Math.PI * 42
@@ -149,6 +183,10 @@ export function ViewAudit() {
               </div>
               <hr className="h-[0.5px] bg-border/50 border-none" />
 
+              {(lockError ?? walletError) && (
+                <div className="px-6 pt-3 text-[11px] text-[#93000a]">{lockError ?? walletError}</div>
+              )}
+
               {participants.map((p) => (
                 <div key={p.id}>
                   <div
@@ -183,9 +221,10 @@ export function ViewAudit() {
                       <button
                         type="button"
                         onClick={handleLockMe}
-                        className="bg-gradient-brand text-white border-none py-2 px-4.5 rounded-full text-xs font-bold tracking-[0.02em] cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-97"
+                        disabled={locking || connecting}
+                        className="bg-gradient-brand text-white border-none py-2 px-4.5 rounded-full text-xs font-bold tracking-[0.02em] cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-97 disabled:opacity-60"
                       >
-                        Lock now
+                        {!address ? 'Connect wallet' : locking ? 'Locking…' : 'Lock now'}
                       </button>
                     ) : !p.joined ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-[0.03em] uppercase bg-neutral-light text-text-muted">

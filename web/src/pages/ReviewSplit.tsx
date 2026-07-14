@@ -1,7 +1,11 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { DonutChart } from '../components/DonutChart'
+import { useWallet } from '../context/WalletContext'
+import { dollarsToBaseUnits } from '../lib/amounts'
+import { initEscrow } from '../lib/escrow'
+import type { EscrowDraft } from '../lib/escrowDraft'
 
 interface ReviewParticipant {
   id: number
@@ -18,7 +22,7 @@ interface ReviewParticipant {
 
 const GRADIENT = 'var(--gradient-brand)'
 
-const participants: ReviewParticipant[] = [
+const mockParticipants: ReviewParticipant[] = [
   {
     id: 1,
     name: 'Riya (you)',
@@ -65,14 +69,67 @@ const participants: ReviewParticipant[] = [
   },
 ]
 
-const total = 452
-const missingMethod = participants.find((p) => !p.hasPaymentMethod)
 const shareLink = 'splitrails.co/s/office-dinner'
+
+function truncateAddress(address: string) {
+  return `${address.slice(0, 4)}…${address.slice(-4)}`
+}
 
 export function ReviewSplit() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const draft = location.state as EscrowDraft | null
+  const { address: myAddress } = useWallet()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState<string | null>(null)
+
+  const participants: ReviewParticipant[] = useMemo(() => {
+    if (!draft) return mockParticipants
+    return draft.participants.map((p) => ({
+      id: p.id,
+      name: p.name,
+      avatarBg: p.avatarBg,
+      donutColor: p.donutColor,
+      initials: p.initials,
+      amount: p.amount,
+      percent: draft.total > 0 ? Math.round((p.amount / draft.total) * 1000) / 10 : 0,
+      subtitle: truncateAddress(p.address),
+      badge: p.isPayer ? 'organizer' : undefined,
+      hasPaymentMethod: true,
+    }))
+  }, [draft])
+
+  const total = draft?.total ?? 452
+  const missingMethod = participants.find((p) => !p.hasPaymentMethod)
+
+  async function handleSend() {
+    if (!draft) {
+      navigate('/sent')
+      return
+    }
+    if (!myAddress) {
+      setSendError('Connect your wallet first')
+      return
+    }
+    setSending(true)
+    setSendError(null)
+    try {
+      await initEscrow(myAddress, {
+        vendor: draft.vendorAddress,
+        token: draft.tokenAddress,
+        deadline: BigInt(draft.deadlineUnix),
+        totalRequired: dollarsToBaseUnits(draft.total),
+        shares: draft.participants.map((p) => [p.address, dollarsToBaseUnits(p.amount)] as const),
+      })
+      navigate('/sent', { state: draft })
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Failed to open escrow')
+    } finally {
+      setSending(false)
+    }
+  }
 
   async function handleCopyLink() {
     try {
@@ -150,8 +207,12 @@ export function ReviewSplit() {
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
                     Paying to
                   </div>
-                  <div className="text-[22px] font-bold tracking-tight">Sora Restaurant</div>
-                  <div className="text-[13px] text-text-secondary mt-0.5">Office Dinner · Jul 12, 2026</div>
+                  <div className="text-[22px] font-bold tracking-tight font-mono">
+                    {draft ? truncateAddress(draft.vendorAddress) : 'Sora Restaurant'}
+                  </div>
+                  <div className="text-[13px] text-text-secondary mt-0.5">
+                    {draft?.label ?? 'Office Dinner'} · {draft ? draft.dueDate : 'Jul 12, 2026'}
+                  </div>
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-success tracking-tight shrink-0">
                   <span className="msym text-sm">check_circle</span>Ready to send
@@ -175,7 +236,7 @@ export function ReviewSplit() {
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1">
                     Collect by
                   </div>
-                  <div className="text-[15px] font-semibold">Jul 20, 2026</div>
+                  <div className="text-[15px] font-semibold">{draft?.dueDate ?? 'Jul 20, 2026'}</div>
                 </div>
               </div>
             </div>
@@ -361,14 +422,16 @@ export function ReviewSplit() {
             </div>
             <h2 className="text-xl font-bold tracking-tight m-0 mb-1.5">Send payment request?</h2>
             <p className="text-text-secondary text-sm m-0 leading-snug">
-              Everyone gets a link to pay their share. SplitRails holds the funds and pays Sora Restaurant
+              Everyone gets a link to pay their share. SplitRails holds the funds and pays the vendor
               automatically once all {participants.length} shares are in.
             </p>
           </div>
           <div className="bg-bg border-[0.5px] border-border rounded-xl py-3.5 px-4 mb-4 flex flex-col gap-2">
             <div className="flex justify-between text-[13px]">
               <span className="text-text-secondary">Paying to</span>
-              <span className="font-semibold text-text-primary">Sora Restaurant</span>
+              <span className="font-semibold text-text-primary font-mono">
+                {draft ? truncateAddress(draft.vendorAddress) : 'Sora Restaurant'}
+              </span>
             </div>
             <div className="flex justify-between text-[13px]">
               <span className="text-text-secondary">Escrow target</span>
@@ -379,12 +442,14 @@ export function ReviewSplit() {
               <span className="font-semibold text-text-primary">Email + push</span>
             </div>
           </div>
+          {sendError && <div className="mb-3 text-[13px] text-[#93000a] text-center">{sendError}</div>}
           <button
             type="button"
-            onClick={() => navigate('/sent')}
-            className="w-full h-[52px] mb-2.5 inline-flex items-center justify-center bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)]"
+            onClick={handleSend}
+            disabled={sending}
+            className="w-full h-[52px] mb-2.5 inline-flex items-center justify-center bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] disabled:opacity-60"
           >
-            Send & get share link
+            {sending ? 'Opening escrow…' : 'Send & get share link'}
           </button>
           <button
             type="button"

@@ -9,6 +9,8 @@ interface ParticipantRowProps {
   locked: boolean
   paid?: boolean
   removable?: boolean
+  address?: string
+  onAddressChange?: (address: string) => void
   onNameChange: (name: string) => void
   onAmountChange: (amount: number) => void
   onToggleLock: () => void
@@ -24,6 +26,8 @@ export function ParticipantRow({
   locked,
   paid = false,
   removable = true,
+  address,
+  onAddressChange,
   onNameChange,
   onAmountChange,
   onToggleLock,
@@ -48,6 +52,15 @@ export function ParticipantRow({
             )}
           </div>
           <div className="text-xs text-text-secondary">{subtitle}</div>
+          {onAddressChange && (
+            <input
+              value={address ?? ''}
+              onChange={(e) => onAddressChange(e.target.value)}
+              placeholder="Stellar address (G…)"
+              spellCheck={false}
+              className="mt-1 border-none bg-transparent outline-none text-[11px] font-mono text-text-muted p-0 w-[180px] focus:bg-info-light focus:rounded focus:px-1 focus:-mx-1"
+            />
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">

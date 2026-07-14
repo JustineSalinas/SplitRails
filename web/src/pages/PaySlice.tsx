@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
+import { useWallet } from '../context/WalletContext'
+import { settleShare } from '../lib/escrow'
 
 const DEADLINE_SECONDS = 14 * 3600 + 20 * 60 + 28
 
@@ -13,7 +15,10 @@ function formatCountdown(totalSeconds: number) {
 
 export function PaySlice() {
   const navigate = useNavigate()
+  const { address, connecting, error: walletError, connect } = useWallet()
   const [secondsLeft, setSecondsLeft] = useState(DEADLINE_SECONDS)
+  const [paying, setPaying] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,8 +27,21 @@ export function PaySlice() {
     return () => clearInterval(interval)
   }, [])
 
-  function handleClaim() {
-    navigate('/locked')
+  async function handleClaim() {
+    if (!address) {
+      await connect()
+      return
+    }
+    setPaying(true)
+    setPayError(null)
+    try {
+      await settleShare(address, address)
+      navigate('/locked')
+    } catch (err) {
+      setPayError(err instanceof Error ? err.message : 'Failed to settle your share')
+    } finally {
+      setPaying(false)
+    }
   }
 
   return (
@@ -145,11 +163,16 @@ export function PaySlice() {
               <button
                 type="button"
                 onClick={handleClaim}
-                className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3"
+                disabled={paying || connecting}
+                className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3 disabled:opacity-60"
               >
                 <span className="msym text-lg"></span>
-                Pay your slice
+                {!address ? 'Connect wallet to pay' : paying ? 'Settling…' : 'Pay your slice'}
               </button>
+
+              {(payError ?? walletError) && (
+                <div className="mb-3 text-[11px] text-[#93000a] text-center">{payError ?? walletError}</div>
+              )}
 
               <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
                 <span className="msym text-sm">lock</span>
