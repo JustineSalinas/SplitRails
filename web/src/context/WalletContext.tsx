@@ -4,17 +4,30 @@ import * as wallet from '../lib/wallet'
 interface WalletState {
   address: string | null
   connecting: boolean
+  /** True once connecting has been stuck for a few seconds — Freighter itself isn't
+   * responding (extension asleep/stuck), since our own code fails fast when the
+   * extension is genuinely absent. Lets the UI say something instead of nothing. */
+  slowConnect: boolean
   error: string | null
   connect: () => Promise<void>
   disconnect: () => void
 }
+
+const SLOW_CONNECT_HINT_MS = 4000
 
 const WalletContext = createContext<WalletState | null>(null)
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [address, setAddress] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
+  const [slowConnect, setSlowConnect] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!connecting) return
+    const timer = setTimeout(() => setSlowConnect(true), SLOW_CONNECT_HINT_MS)
+    return () => clearTimeout(timer)
+  }, [connecting])
 
   useEffect(() => {
     let cancelled = false
@@ -36,6 +49,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const connect = useCallback(async () => {
     setConnecting(true)
+    setSlowConnect(false)
     setError(null)
     try {
       const connected = await wallet.connect()
@@ -56,8 +70,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ address, connecting, error, connect, disconnect }),
-    [address, connecting, error, connect, disconnect],
+    () => ({ address, connecting, slowConnect, error, connect, disconnect }),
+    [address, connecting, slowConnect, error, connect, disconnect],
   )
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>

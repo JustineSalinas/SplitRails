@@ -14,7 +14,7 @@ function truncateAddress(address: string) {
 }
 
 export function Nav() {
-  const { address, connecting, error, connect } = useWallet()
+  const { address, connecting, slowConnect, error, connect } = useWallet()
 
   return (
     <header className="sticky top-0 z-50 bg-bg/85 backdrop-blur-xl border-b-[0.5px] border-border">
@@ -75,16 +75,28 @@ export function Nav() {
               <span className="max-sm:hidden">{truncateAddress(address)}</span>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={connect}
-              disabled={connecting}
-              title={error ?? undefined}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 max-sm:px-2.5 rounded-full bg-gradient-brand text-white text-[13px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.15)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] transition-shadow duration-200 active:scale-97 disabled:opacity-60"
-            >
-              <span className="msym text-base">account_balance_wallet</span>
-              <span className="max-sm:hidden">{connecting ? 'Connecting…' : 'Connect wallet'}</span>
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={connect}
+                disabled={connecting}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 max-sm:px-2.5 rounded-full bg-gradient-brand text-white text-[13px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.15)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] transition-shadow duration-200 active:scale-97 disabled:opacity-60"
+              >
+                <span className="msym text-base">account_balance_wallet</span>
+                <span className="max-sm:hidden">{connecting ? 'Connecting…' : 'Connect wallet'}</span>
+              </button>
+              {error && !connecting && (
+                <div className="absolute top-full right-0 mt-2 w-[280px] bg-text-primary text-white text-xs rounded-lg px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.25)] z-[100] leading-[1.4]">
+                  {error}
+                </div>
+              )}
+              {connecting && slowConnect && (
+                <div className="absolute top-full right-0 mt-2 w-[280px] bg-text-primary text-white text-xs rounded-lg px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.25)] z-[100] leading-[1.4]">
+                  Still waiting on Freighter. Check for a popup window (it can open behind your
+                  browser), or reload the extension at chrome://extensions and try again.
+                </div>
+              )}
+            </div>
           )}
           <Link
             to="/profile"
