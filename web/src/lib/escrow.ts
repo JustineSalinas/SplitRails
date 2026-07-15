@@ -1,15 +1,15 @@
 import { signTransaction } from '@stellar/freighter-api'
 import type { Result } from '@stellar/stellar-sdk/contract'
 import { baseUnitsToDollars } from './amounts'
+import { escrowContractId, escrowWasmHash, networkPassphrase, sorobanRpcUrl } from './config'
 import { Client as EscrowClient } from './escrow-bindings'
-import { escrowContractId, networkPassphrase, sorobanRpcUrl } from './config'
 import { logTx } from './txLog'
 
 export type { Status as EscrowStatus } from './escrow-bindings'
 
-export function getEscrowClient(publicKey?: string): EscrowClient {
+export function getEscrowClient(publicKey?: string, contractId: string = escrowContractId): EscrowClient {
   return new EscrowClient({
-    contractId: escrowContractId,
+    contractId,
     networkPassphrase,
     rpcUrl: sorobanRpcUrl,
     publicKey,
@@ -29,8 +29,29 @@ function unwrapResult<T>(result: Result<T>): T {
   return result.unwrap()
 }
 
+// The fixed contract at `escrowContractId` only ever supports one invoice for its whole
+// lifetime — its `init()` is one-shot and permanently rejects a second call. Every new
+// invoice deploys its own independent contract instance from the same installed wasm
+// (the "factory" pattern Soroban supports natively), so creating invoice #2, #3, ... never
+// collides with #1. Returns the new instance's contract ID.
+export async function deployEscrowInstance(publicKey: string): Promise<string> {
+  const deployTx = await EscrowClient.deploy({
+    wasmHash: escrowWasmHash,
+    networkPassphrase,
+    rpcUrl: sorobanRpcUrl,
+    publicKey,
+    signTransaction,
+  })
+  const sent = await deployTx.signAndSend()
+  const newContractId = sent.result.options.contractId
+  const hash = sent.sendTransactionResponse?.hash
+  if (hash) logTx('New escrow instance deployed', hash, newContractId)
+  return newContractId
+}
+
 export async function initEscrow(
   publicKey: string,
+  contractId: string,
   params: {
     vendor: string
     token: string
@@ -39,7 +60,7 @@ export async function initEscrow(
     shares: Array<readonly [string, bigint]>
   },
 ) {
-  const client = getEscrowClient(publicKey)
+  const client = getEscrowClient(publicKey, contractId)
   const tx = await client.init({
     creator: publicKey,
     vendor: params.vendor,
@@ -51,12 +72,12 @@ export async function initEscrow(
   const sent = await tx.signAndSend()
   const result = unwrapResult(sent.result)
   const hash = sent.sendTransactionResponse?.hash
-  if (hash) logTx('Split created', hash, baseUnitsToDollars(params.totalRequired))
+  if (hash) logTx('Split created', hash, contractId, baseUnitsToDollars(params.totalRequired))
   return result
 }
 
-export async function settleShare(publicKey: string, participant: string) {
-  const client = getEscrowClient(publicKey)
+export async function settleShare(publicKey: string, participant: string, contractId: string = escrowContractId) {
+  const client = getEscrowClient(publicKey, contractId)
   const tx = await client.settle({ participant })
   const sent = await tx.signAndSend()
   const result = unwrapResult(sent.result)
@@ -66,51 +87,51 @@ export async function settleShare(publicKey: string, participant: string) {
     // used to compute burn rate / cumulative spend on the Audit Ledger timeline.
     let amount: number | undefined
     try {
-      amount = baseUnitsToDollars(await getParticipantShare(participant))
+      amount = baseUnitsToDollars(await getParticipantShare(participant, contractId))
     } catch {
       // amount is a nice-to-have for the timeline; don't fail the settle over it
     }
-    logTx(`${participant.slice(0, 4)}…${participant.slice(-4)} locked their share`, hash, amount)
+    logTx(`${participant.slice(0, 4)}…${participant.slice(-4)} locked their share`, hash, contractId, amount)
   }
   return result
 }
 
-export async function expireEscrow(publicKey: string) {
-  const client = getEscrowClient(publicKey)
+export async function expireEscrow(publicKey: string, contractId: string = escrowContractId) {
+  const client = getEscrowClient(publicKey, contractId)
   const tx = await client.expire()
   const sent = await tx.signAndSend()
   const result = unwrapResult(sent.result)
   const hash = sent.sendTransactionResponse?.hash
-  if (hash) logTx('Escrow expired · refunds issued', hash)
+  if (hash) logTx('Escrow expired · refunds issued', hash, contractId)
   return result
 }
 
-export async function getEscrowStatus() {
-  const client = getEscrowClient()
+export async function getEscrowStatus(contractId: string = escrowContractId) {
+  const client = getEscrowClient(undefined, contractId)
   const tx = await client.status()
   return tx.result
 }
 
-export async function getParticipantShare(participant: string) {
-  const client = getEscrowClient()
+export async function getParticipantShare(participant: string, contractId: string = escrowContractId) {
+  const client = getEscrowClient(undefined, contractId)
   const tx = await client.get_share({ participant })
   return tx.result
 }
 
-export async function getEscrowTotals() {
-  const client = getEscrowClient()
+export async function getEscrowTotals(contractId: string = escrowContractId) {
+  const client = getEscrowClient(undefined, contractId)
   const tx = await client.get_totals()
   return tx.result
 }
 
-export async function isParticipantCleared(participant: string) {
-  const client = getEscrowClient()
+export async function isParticipantCleared(participant: string, contractId: string = escrowContractId) {
+  const client = getEscrowClient(undefined, contractId)
   const tx = await client.is_cleared({ participant })
   return tx.result
 }
 
-export async function getEscrowParticipants() {
-  const client = getEscrowClient()
+export async function getEscrowParticipants(contractId: string = escrowContractId) {
+  const client = getEscrowClient(undefined, contractId)
   const tx = await client.get_participants()
   return tx.result
 }

@@ -32,14 +32,18 @@ function App() {
             <Route path="review" element={<ReviewSplit />} />
             <Route path="sent" element={<SentSuccess />} />
             <Route path="pay" element={<PaySlice />} />
+            <Route path="pay/:contractId" element={<PaySlice />} />
             <Route path="locked" element={<SliceLocked />} />
             <Route path="audit" element={<ViewAudit />} />
+            <Route path="audit/:contractId" element={<ViewAudit />} />
             <Route path="audit-complete" element={<AuditComplete />} />
             <Route path="audit-ledger" element={<AuditLedger />} />
+            <Route path="audit-ledger/:contractId" element={<AuditLedger />} />
             <Route path="expired" element={<SplitExpired />} />
             <Route path="activity" element={<History />} />
             <Route path="vault" element={<Vault />} />
             <Route path="finance" element={<Finance />} />
+            <Route path="finance/:contractId" element={<Finance />} />
             <Route path="profile" element={<Profile />} />
             <Route path="passkey-demo" element={<PasskeyDemo />} />
           </Route>

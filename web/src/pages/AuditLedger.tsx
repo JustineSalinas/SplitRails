@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { baseUnitsToDollars } from '../lib/amounts'
 import { getEscrowStatus, getEscrowTotals, type EscrowStatus } from '../lib/escrow'
@@ -78,10 +78,11 @@ function statusLabel(status: EscrowStatus | null) {
 }
 
 export function AuditLedger() {
+  const { contractId } = useParams()
   const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
   const [liveStatus, setLiveStatus] = useState<EscrowStatus | null>(null)
   const [liveError, setLiveError] = useState<string | null>(null)
-  const [liveTxLog] = useState<TxLogEntry[]>(() => getTxLog())
+  const liveTxLog = useMemo<TxLogEntry[]>(() => getTxLog(contractId), [contractId])
   const [costCenter, setCostCenter] = useState('Operations')
   const [projectId, setProjectId] = useState('AWS-Q3-0714')
   const [exporting, setExporting] = useState(false)
@@ -91,7 +92,7 @@ export function AuditLedger() {
     let cancelled = false
     async function loadLiveData() {
       try {
-        const [totals, status] = await Promise.all([getEscrowTotals(), getEscrowStatus()])
+        const [totals, status] = await Promise.all([getEscrowTotals(contractId), getEscrowStatus(contractId)])
         if (cancelled) return
         // get_totals() returns (cleared, required) — totals[0] is cleared.
         setLiveTotals({ cleared: baseUnitsToDollars(totals[0]), required: baseUnitsToDollars(totals[1]) })
@@ -104,7 +105,7 @@ export function AuditLedger() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [contractId])
 
   const totalSettled = liveTotals?.cleared ?? TOTAL_SETTLED
   const goal = liveTotals?.required ?? GOAL
@@ -139,7 +140,7 @@ export function AuditLedger() {
     setExporting(true)
     setExportError(null)
     try {
-      const csv = await buildLedgerCsv({ costCenter, projectId })
+      const csv = await buildLedgerCsv({ costCenter, projectId }, contractId)
       downloadCsv('splitrails-gl-ledger.csv', csv)
     } catch (err) {
       setExportError(

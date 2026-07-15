@@ -4,8 +4,9 @@ import { Avatar } from '../components/Avatar'
 import { DonutChart } from '../components/DonutChart'
 import { useWallet } from '../context/WalletContext'
 import { dollarsToBaseUnits, truncateAddress } from '../lib/amounts'
-import { initEscrow } from '../lib/escrow'
+import { deployEscrowInstance, initEscrow } from '../lib/escrow'
 import type { EscrowDraft } from '../lib/escrowDraft'
+import { saveInvoice } from '../lib/invoiceRegistry'
 
 interface ReviewParticipant {
   id: number
@@ -79,6 +80,7 @@ export function ReviewSplit() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
+  const [sendStage, setSendStage] = useState<'deploying' | 'opening' | null>(null)
   const [sendError, setSendError] = useState<string | null>(null)
 
   const participants: ReviewParticipant[] = useMemo(() => {
@@ -112,18 +114,32 @@ export function ReviewSplit() {
     setSending(true)
     setSendError(null)
     try {
-      await initEscrow(myAddress, {
+      // Every invoice gets its own contract instance — the alternative (reusing one fixed
+      // contract) means the second split anyone ever creates fails outright, since init()
+      // is one-shot per instance.
+      setSendStage('deploying')
+      const contractId = await deployEscrowInstance(myAddress)
+      setSendStage('opening')
+      await initEscrow(myAddress, contractId, {
         vendor: draft.vendorAddress,
         token: draft.tokenAddress,
         deadline: BigInt(draft.deadlineUnix),
         totalRequired: dollarsToBaseUnits(draft.total),
         shares: draft.participants.map((p) => [p.address, dollarsToBaseUnits(p.amount)] as const),
       })
-      navigate('/sent', { state: draft })
+      saveInvoice({
+        contractId,
+        label: draft.label,
+        vendor: draft.vendorAddress,
+        total: draft.total,
+        createdAt: Date.now(),
+      })
+      navigate('/sent', { state: { ...draft, contractId } })
     } catch (err) {
       setSendError(err instanceof Error ? err.message : 'Failed to open escrow')
     } finally {
       setSending(false)
+      setSendStage(null)
     }
   }
 
@@ -445,7 +461,11 @@ export function ReviewSplit() {
             disabled={sending}
             className="w-full h-[52px] mb-2.5 inline-flex items-center justify-center bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] disabled:opacity-60"
           >
-            {sending ? 'Opening escrow…' : 'Send & get share link'}
+            {sendStage === 'deploying'
+              ? 'Deploying escrow contract…'
+              : sendStage === 'opening'
+                ? 'Opening escrow…'
+                : 'Send & get share link'}
           </button>
           <button
             type="button"

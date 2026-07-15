@@ -17,26 +17,26 @@ export interface LedgerRow {
   projectId: string
 }
 
-function findTxHash(participant: string): { hash: string; timestamp: number } | null {
+function findTxHash(participant: string, contractId?: string): { hash: string; timestamp: number } | null {
   const shortAddr = `${participant.slice(0, 4)}…${participant.slice(-4)}`
-  const entry = getTxLog().find((e) => e.label.startsWith(shortAddr))
+  const entry = getTxLog(contractId).find((e) => e.label.startsWith(shortAddr))
   return entry ? { hash: entry.hash, timestamp: entry.timestamp } : null
 }
 
 // Builds one row per live on-chain participant — the same escrow contract state the
 // Audit Ledger reads to render its "Live" section. Throws if no live escrow is
 // reachable, so callers never silently substitute mock rows for a real export.
-export async function buildLedgerRows(tags: GlTags): Promise<LedgerRow[]> {
-  const addresses = await getEscrowParticipants()
+export async function buildLedgerRows(tags: GlTags, contractId?: string): Promise<LedgerRow[]> {
+  const addresses = await getEscrowParticipants(contractId)
   if (addresses.length === 0) throw new Error('No live escrow participants to export')
 
   return Promise.all(
     addresses.map(async (participant) => {
       const [share, cleared] = await Promise.all([
-        getParticipantShare(participant),
-        isParticipantCleared(participant),
+        getParticipantShare(participant, contractId),
+        isParticipantCleared(participant, contractId),
       ])
-      const tx = findTxHash(participant)
+      const tx = findTxHash(participant, contractId)
       return {
         participant,
         amount: baseUnitsToDollars(share),
@@ -50,9 +50,9 @@ export async function buildLedgerRows(tags: GlTags): Promise<LedgerRow[]> {
   )
 }
 
-export async function buildLedgerCsv(tags: GlTags): Promise<string> {
-  const rows = await buildLedgerRows(tags)
-  const totals = await getEscrowTotals()
+export async function buildLedgerCsv(tags: GlTags, contractId?: string): Promise<string> {
+  const rows = await buildLedgerRows(tags, contractId)
+  const totals = await getEscrowTotals(contractId)
   const header = ['Participant', 'Amount (USD)', 'Cleared', 'Tx Hash', 'Cleared At', 'Cost Center', 'Project ID']
   const body = rows.map((r) => [
     r.participant,

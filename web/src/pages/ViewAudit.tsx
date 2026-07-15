@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
 import { baseUnitsToDollars, truncateAddress } from '../lib/amounts'
@@ -38,14 +38,14 @@ const initialParticipants: Participant[] = [
 // contract only knows addresses (no names/avatars — that's off-chain
 // identity data nobody's built yet), so each row's "name" is a truncated
 // address, same convention as ReviewSplit's summary.
-async function loadLiveParticipants(myAddress: string | null): Promise<Participant[] | null> {
-  const addresses = await getEscrowParticipants()
+async function loadLiveParticipants(myAddress: string | null, contractId?: string): Promise<Participant[] | null> {
+  const addresses = await getEscrowParticipants(contractId)
   if (addresses.length === 0) return null
   return Promise.all(
     addresses.map(async (participantAddress, i) => {
       const [share, cleared] = await Promise.all([
-        getParticipantShare(participantAddress),
-        isParticipantCleared(participantAddress),
+        getParticipantShare(participantAddress, contractId),
+        isParticipantCleared(participantAddress, contractId),
       ])
       return {
         id: i,
@@ -68,6 +68,7 @@ function formatCountdown(totalSeconds: number) {
 }
 
 export function ViewAudit() {
+  const { contractId } = useParams()
   const { address, connecting, error: walletError, connect } = useWallet()
   const [secondsLeft, setSecondsLeft] = useState(CLOSES_IN_SECONDS)
   const [participants, setParticipants] = useState(initialParticipants)
@@ -86,7 +87,7 @@ export function ViewAudit() {
 
   useEffect(() => {
     let cancelled = false
-    getEscrowTotals()
+    getEscrowTotals(contractId)
       .then((totals) => {
         // get_totals() returns (cleared, required) — totals[0] is cleared.
         if (!cancelled) setLiveTotals({ cleared: baseUnitsToDollars(totals[0]), required: baseUnitsToDollars(totals[1]) })
@@ -97,11 +98,11 @@ export function ViewAudit() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [contractId])
 
   useEffect(() => {
     let cancelled = false
-    loadLiveParticipants(address)
+    loadLiveParticipants(address, contractId)
       .then((rows) => {
         if (!cancelled && rows) setLiveParticipants(rows)
       })
@@ -111,7 +112,7 @@ export function ViewAudit() {
     return () => {
       cancelled = true
     }
-  }, [address])
+  }, [address, contractId])
 
   async function handleLockMe() {
     if (!address) {
@@ -121,9 +122,9 @@ export function ViewAudit() {
     setLocking(true)
     setLockError(null)
     try {
-      await settleShare(address, address)
+      await settleShare(address, address, contractId)
       if (liveParticipants) {
-        const rows = await loadLiveParticipants(address)
+        const rows = await loadLiveParticipants(address, contractId)
         if (rows) setLiveParticipants(rows)
       } else {
         setParticipants((prev) => prev.map((p) => (p.isMe ? { ...p, locked: true } : p)))
@@ -313,7 +314,7 @@ export function ViewAudit() {
 
               <div className="px-6 py-4 text-center">
                 <Link
-                  to="/audit-ledger"
+                  to={contractId ? `/audit-ledger/${contractId}` : '/audit-ledger'}
                   className="bg-transparent border-none text-sm font-semibold text-text-primary cursor-pointer"
                 >
                   View all details

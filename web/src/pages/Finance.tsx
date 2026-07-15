@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { baseUnitsToDollars, truncateAddress } from '../lib/amounts'
 import { getEscrowParticipants, getEscrowTotals, getParticipantShare, isParticipantCleared } from '../lib/escrow'
 import { buildLedgerCsv, downloadCsv } from '../lib/glExport'
@@ -23,6 +24,7 @@ const ROADMAP_ITEMS = [
 ]
 
 export function Finance() {
+  const { contractId } = useParams()
   const [rows, setRows] = useState<LiveRow[] | null>(null)
   const [totals, setTotals] = useState<{ cleared: number; required: number } | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -35,18 +37,18 @@ export function Finance() {
     let cancelled = false
     async function load() {
       try {
-        const addresses = await getEscrowParticipants()
+        const addresses = await getEscrowParticipants(contractId)
         const [rowData, liveTotals] = await Promise.all([
           Promise.all(
             addresses.map(async (participant) => {
               const [share, cleared] = await Promise.all([
-                getParticipantShare(participant),
-                isParticipantCleared(participant),
+                getParticipantShare(participant, contractId),
+                isParticipantCleared(participant, contractId),
               ])
               return { participant, amount: baseUnitsToDollars(share), cleared }
             }),
           ),
-          getEscrowTotals(),
+          getEscrowTotals(contractId),
         ])
         if (cancelled) return
         setRows(rowData)
@@ -60,13 +62,13 @@ export function Finance() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [contractId])
 
   async function handleExport() {
     setExporting(true)
     setExportError(null)
     try {
-      const csv = await buildLedgerCsv({ costCenter, projectId })
+      const csv = await buildLedgerCsv({ costCenter, projectId }, contractId)
       downloadCsv('splitrails-gl-ledger.csv', csv)
     } catch (err) {
       setExportError(

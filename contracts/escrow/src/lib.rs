@@ -39,6 +39,7 @@ pub enum Error {
     AlreadyCleared = 6,
     NotOpen = 7,
     DeadlineNotReached = 8,
+    DuplicateParticipant = 9,
 }
 
 #[contract]
@@ -73,6 +74,12 @@ impl EscrowContract {
         for (participant, amount) in shares.iter() {
             if amount <= 0 {
                 return Err(Error::InvalidAmount);
+            }
+            // A duplicate address would silently overwrite its own Share/Cleared entry below,
+            // permanently under-collecting the total and deadlocking the escrow — reject it
+            // on-chain rather than relying solely on the frontend's own dedupe check.
+            if participants.contains(&participant) {
+                return Err(Error::DuplicateParticipant);
             }
             sum += amount;
             participants.push_back(participant.clone());
@@ -507,6 +514,29 @@ mod test {
             &1_000u64,
             &100i128,
             &Vec::from_array(&env, [(alice.clone(), 100i128)]),
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_init_rejects_duplicate_participant() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let contract_id = env.register(EscrowContract, ());
+        let client = EscrowContractClient::new(&env, &contract_id);
+
+        let creator = Address::generate(&env);
+        let vendor = Address::generate(&env);
+        let token = Address::generate(&env);
+        let alice = Address::generate(&env);
+
+        client.init(
+            &creator,
+            &vendor,
+            &token,
+            &1_000u64,
+            &300i128,
+            &Vec::from_array(&env, [(alice.clone(), 100i128), (alice.clone(), 200i128)]),
         );
     }
 

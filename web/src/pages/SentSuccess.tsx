@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
+import type { EscrowDraft } from '../lib/escrowDraft'
 
 interface SentParticipant {
   id: number
@@ -22,13 +23,25 @@ const participants: SentParticipant[] = [
   { id: 4, name: 'Theo Rowe', avatarBg: '#5c5f61', initials: 'TR', status: 'notified' },
 ]
 
-const total = 4850
-const shareLink = 'splitrails.co/s/aws-infra-q3'
+const MOCK_TOTAL = 4850
+const MOCK_SHARE_LINK = 'splitrails.co/s/aws-infra-q3'
 
 export function SentSuccess() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const draft = location.state as (EscrowDraft & { contractId?: string }) | null
   const [toast, setToast] = useState('')
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  const total = draft?.total ?? MOCK_TOTAL
+  const label = draft?.label ?? 'AWS + Design Tools — Q3'
+  // A real invoice gets a real settle link pointing at its own deployed escrow instance;
+  // without a live draft (e.g. landing here directly) we fall back to the mock demo link.
+  const shareUrl = draft?.contractId
+    ? `${window.location.origin}/pay/${draft.contractId}`
+    : `https://${MOCK_SHARE_LINK}`
+  const shareLinkDisplay = draft?.contractId ? shareUrl.replace(/^https?:\/\//, '') : MOCK_SHARE_LINK
+  const ledgerUrl = draft?.contractId ? `/audit-ledger/${draft.contractId}` : '/audit-ledger'
 
   function showToast(text: string) {
     setToast(text)
@@ -37,14 +50,14 @@ export function SentSuccess() {
   }
 
   function copyLink() {
-    if (navigator.clipboard) navigator.clipboard.writeText(`https://${shareLink}`).catch(() => {})
+    if (navigator.clipboard) navigator.clipboard.writeText(shareUrl).catch(() => {})
     showToast('Link copied to clipboard')
   }
 
   function shareGeneric() {
-    const url = `https://${shareLink}`
+    const url = shareUrl
     if (navigator.share) {
-      navigator.share({ title: 'SplitRails payment request', text: 'Pay your share for AWS + Design Tools — Q3', url }).catch(() => {})
+      navigator.share({ title: 'SplitRails payment request', text: `Pay your share for ${label}`, url }).catch(() => {})
     } else {
       if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {})
       showToast('Link copied — paste to share')
@@ -52,28 +65,27 @@ export function SentSuccess() {
   }
 
   function shareMessenger() {
-    const url = `https://${shareLink}`
     window.open(
-      `https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&app_id=0&redirect_uri=${encodeURIComponent(url)}`,
+      `https://www.facebook.com/dialog/send?link=${encodeURIComponent(shareUrl)}&app_id=0&redirect_uri=${encodeURIComponent(shareUrl)}`,
       '_blank',
     )
   }
 
   function shareInstagram() {
-    if (navigator.clipboard) navigator.clipboard.writeText(`https://${shareLink}`).catch(() => {})
+    if (navigator.clipboard) navigator.clipboard.writeText(shareUrl).catch(() => {})
     showToast('Link copied — paste it in your Instagram DM or story')
   }
 
   function shareWhatsapp() {
     window.open(
-      `https://wa.me/?text=${encodeURIComponent(`Pay your share for AWS + Design Tools — Q3: https://${shareLink}`)}`,
+      `https://wa.me/?text=${encodeURIComponent(`Pay your share for ${label}: ${shareUrl}`)}`,
       '_blank',
     )
   }
 
   function shareEmail() {
     window.open(
-      `mailto:?subject=${encodeURIComponent('Your share for AWS + Design Tools — Q3')}&body=${encodeURIComponent(`Pay your share here: https://${shareLink}`)}`,
+      `mailto:?subject=${encodeURIComponent(`Your share for ${label}`)}&body=${encodeURIComponent(`Pay your share here: ${shareUrl}`)}`,
       '_blank',
     )
   }
@@ -88,7 +100,9 @@ export function SentSuccess() {
           </div>
           <h1 className="text-[28px] font-bold tracking-tight m-0 mb-2">Request sent!</h1>
           <p className="text-text-secondary text-[15px] m-0 leading-[1.5]">
-            Alex, Mia and Theo have been notified. Funds go to Amazon Web Services once all 4 shares are collected.
+            {draft?.contractId
+              ? 'Your escrow contract is live on testnet. Share the link below — funds release once every share is collected.'
+              : 'Alex, Mia and Theo have been notified. Funds go to Amazon Web Services once all 4 shares are collected.'}
           </p>
         </div>
 
@@ -97,10 +111,13 @@ export function SentSuccess() {
           <div className="flex items-center justify-between gap-4 mb-1">
             <div>
               <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
-                AWS + Design Tools — Q3
+                {label}
               </div>
               <div className="text-xl font-bold tracking-tight">
-                ${total.toFixed(2)} <span className="text-[13px] font-medium text-text-secondary">total · 4 ways</span>
+                ${total.toFixed(2)}{' '}
+                <span className="text-[13px] font-medium text-text-secondary">
+                  total · {draft?.participants.length ?? 4} ways
+                </span>
               </div>
             </div>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-success/[0.15] text-success">
@@ -136,7 +153,7 @@ export function SentSuccess() {
           <div className="flex items-center gap-2.5 bg-bg border-[0.5px] border-border rounded-xl px-3.5 py-3">
             <span className="msym text-info text-lg">link</span>
             <div className="flex-1 min-w-0 font-mono text-sm font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
-              {shareLink}
+              {shareLinkDisplay}
             </div>
             <button
               type="button"
@@ -216,7 +233,7 @@ export function SentSuccess() {
         <div className="flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={() => navigate('/review')}
+            onClick={() => navigate(ledgerUrl)}
             className="w-full inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none py-3.5 px-5 rounded-full text-sm font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98"
           >
             <span className="msym text-lg">receipt_long</span> View split status

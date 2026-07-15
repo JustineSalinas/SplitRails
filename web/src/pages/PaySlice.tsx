@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
 import { corridors, type Corridor } from '../lib/anchor'
@@ -11,8 +11,8 @@ const DEADLINE_SECONDS = 14 * 3600 + 20 * 60 + 28
 const SHARE_AMOUNT = 1080
 type PayoutCurrency = 'USDC' | Corridor
 
-async function buildSettleChallenge(address: string): Promise<Uint8Array> {
-  const client = getEscrowClient(address)
+async function buildSettleChallenge(address: string, contractId?: string): Promise<Uint8Array> {
+  const client = getEscrowClient(address, contractId)
   const tx = await client.settle({ participant: address })
   const bytes = new TextEncoder().encode(tx.toXDR())
   return new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
@@ -27,6 +27,7 @@ function formatCountdown(totalSeconds: number) {
 
 export function PaySlice() {
   const navigate = useNavigate()
+  const { contractId } = useParams()
   const { address, connecting, error: walletError, connect } = useWallet()
   const [secondsLeft, setSecondsLeft] = useState(DEADLINE_SECONDS)
   const [paying, setPaying] = useState(false)
@@ -52,7 +53,7 @@ export function PaySlice() {
       registration = await createPasskey(address)
       savePasskeyRegistration(address, registration)
     }
-    const challenge = await buildSettleChallenge(address)
+    const challenge = await buildSettleChallenge(address, contractId)
     const assertion = await signWithPasskey(registration.credentialId, challenge)
     const ok = await verifyAssertion(assertion, registration.publicKeyJwk)
     if (!ok) throw new Error('Biometric verification failed — signature did not match')
@@ -70,7 +71,7 @@ export function PaySlice() {
       if (isPasskeySupported()) {
         await verifyWithPasskey(address)
       }
-      await settleShare(address, address)
+      await settleShare(address, address, contractId)
       navigate('/locked')
     } catch (err) {
       setPayError(err instanceof Error ? err.message : 'Failed to settle your share')

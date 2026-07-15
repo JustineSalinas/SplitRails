@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { Button, buttonBaseClasses, buttonVariantClasses } from '../components/Button'
 import { SplitCard } from '../components/SplitCard'
+import { truncateAddress } from '../lib/amounts'
+import { listInvoices } from '../lib/invoiceRegistry'
 
 type SplitCategory = 'action' | 'waiting' | 'done'
 type Tab = 'needs-action' | 'waiting' | 'all-active' | 'settled'
@@ -156,8 +158,39 @@ export function Dashboard() {
   const [sortMode, setSortMode] = useState<SortMode>('urgent')
   const [sortOpen, setSortOpen] = useState(false)
 
+  // Real invoices this browser has created — each is its own live escrow contract instance
+  // (see lib/invoiceRegistry). Shown alongside the demo cards so a newly created split
+  // actually appears here instead of only being reachable via its Settle Link.
+  const liveEntries: SplitEntry[] = useMemo(
+    () =>
+      listInvoices().map((inv) => ({
+        id: -inv.createdAt,
+        category: 'waiting',
+        to: `/audit/${inv.contractId}`,
+        chip: { label: 'Live invoice', variant: 'waiting' },
+        title: inv.label,
+        subtitle: `To ${truncateAddress(inv.vendor)} · created ${new Date(inv.createdAt).toLocaleDateString()}`,
+        footer: () => (
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
+                Total
+              </div>
+              <div className="font-mono text-[17px] font-semibold">${inv.total.toFixed(2)}</div>
+            </div>
+            <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-text-secondary">
+              View <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+            </span>
+          </div>
+        ),
+      })),
+    [],
+  )
+
+  const allSplits = useMemo(() => [...liveEntries, ...SPLITS], [liveEntries])
+
   const visibleSplits = useMemo(() => {
-    const filtered = SPLITS.filter((entry) => matchesTab(entry, activeTab))
+    const filtered = allSplits.filter((entry) => matchesTab(entry, activeTab))
     const sorted = [...filtered]
     if (sortMode === 'urgent') {
       sorted.sort((a, b) => URGENCY_RANK[a.category] - URGENCY_RANK[b.category])
@@ -165,7 +198,7 @@ export function Dashboard() {
       sorted.sort((a, b) => a.title.localeCompare(b.title))
     }
     return sorted
-  }, [activeTab, sortMode])
+  }, [allSplits, activeTab, sortMode])
 
   const currentSortLabel = SORT_MODES.find((m) => m.value === sortMode)?.label ?? 'Most urgent'
 

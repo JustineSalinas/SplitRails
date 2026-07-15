@@ -2,13 +2,27 @@ import {
   isConnected as freighterIsConnected,
   requestAccess,
   getAddress as freighterGetAddress,
+  getNetworkDetails,
   signTransaction as freighterSignTransaction,
 } from '@stellar/freighter-api'
-import { networkPassphrase } from './config'
+import { networkPassphrase, stellarNetwork } from './config'
 
 const CONNECT_TIMEOUT_MS = 5000
 const NOT_INSTALLED_MESSAGE =
   'Freighter wallet extension not detected. Install it from freighter.app and reload the page.'
+
+// A user on the wrong Freighter network (e.g. Mainnet while this app runs on Testnet) would
+// otherwise get whatever raw error the RPC/contract call throws back — usually an opaque
+// "transaction failed" with no indication of the actual cause. Check up front and say so.
+async function assertCorrectNetwork(): Promise<void> {
+  const details = await withTimeout(getNetworkDetails(), 'Freighter did not respond in time.')
+  const result = unwrap(details)
+  if (result.networkPassphrase !== networkPassphrase) {
+    throw new Error(
+      `Freighter is set to a different network than this app (expected ${stellarNetwork}). Switch networks in the Freighter extension and try again.`,
+    )
+  }
+}
 
 function unwrap<T extends { error?: { message: string } }>(result: T): Omit<T, 'error'> {
   if (result.error) {
@@ -84,6 +98,7 @@ export async function isWalletAvailable(): Promise<boolean> {
 
 export async function connect(): Promise<string> {
   await assertWalletInstalled()
+  await assertCorrectNetwork()
   const result = await requestAccess()
   return unwrap(result).address
 }
@@ -96,6 +111,7 @@ export async function getAddress(): Promise<string> {
 
 export async function signTransaction(transactionXdr: string, address: string): Promise<string> {
   await assertWalletInstalled()
+  await assertCorrectNetwork()
   const result = await freighterSignTransaction(transactionXdr, { networkPassphrase, address })
   return unwrap(result).signedTxXdr
 }
