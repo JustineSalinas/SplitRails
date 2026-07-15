@@ -1,5 +1,6 @@
 import { signTransaction } from '@stellar/freighter-api'
 import type { Result } from '@stellar/stellar-sdk/contract'
+import { baseUnitsToDollars } from './amounts'
 import { Client as EscrowClient } from './escrow-bindings'
 import { escrowContractId, networkPassphrase, sorobanRpcUrl } from './config'
 import { logTx } from './txLog'
@@ -50,7 +51,7 @@ export async function initEscrow(
   const sent = await tx.signAndSend()
   const result = unwrapResult(sent.result)
   const hash = sent.sendTransactionResponse?.hash
-  if (hash) logTx('Split created', hash)
+  if (hash) logTx('Split created', hash, baseUnitsToDollars(params.totalRequired))
   return result
 }
 
@@ -60,7 +61,17 @@ export async function settleShare(publicKey: string, participant: string) {
   const sent = await tx.signAndSend()
   const result = unwrapResult(sent.result)
   const hash = sent.sendTransactionResponse?.hash
-  if (hash) logTx(`${participant.slice(0, 4)}…${participant.slice(-4)} locked their share`, hash)
+  if (hash) {
+    // Query the just-cleared share so the log carries a real dollar amount —
+    // used to compute burn rate / cumulative spend on the Audit Ledger timeline.
+    let amount: number | undefined
+    try {
+      amount = baseUnitsToDollars(await getParticipantShare(participant))
+    } catch {
+      // amount is a nice-to-have for the timeline; don't fail the settle over it
+    }
+    logTx(`${participant.slice(0, 4)}…${participant.slice(-4)} locked their share`, hash, amount)
+  }
   return result
 }
 

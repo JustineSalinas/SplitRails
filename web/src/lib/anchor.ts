@@ -4,14 +4,16 @@
 // layer so Earl's pages can list corridors and open an interactive deposit/withdraw URL.
 //
 // This is an *interface* for the demo, not a full SEP-24 client: it shapes the anchor's hosted
-// interactive URL rather than running the authenticated POST flow. All corridors (PHP, VND, IDR)
-// are wired to the live testnet anchor sandbox to support interactive demo depth.
+// interactive URL rather than running the authenticated POST flow. Only PHP is actually wired to
+// a live testnet anchor — VND and IDR are architecture-ready (same adapter shape, symmetric in
+// the picker) but have no real anchor endpoint behind them yet, so they're presented disabled
+// rather than silently pointing at PHP's sandbox.
 
 export type Corridor = 'PHP' | 'VND' | 'IDR'
 
 export interface AnchorAdapter {
   currency: Corridor
-  /** PHP, VND, and IDR: wired to the testnet sandbox. */
+  /** Only PHP is wired to a live testnet anchor for this demo; VND/IDR are configured but disabled. */
   enabled: boolean
   /** SEP-24-style interactive deposit — returns the anchor's hosted interactive URL. */
   initDeposit(amount: string): Promise<{ interactiveUrl: string }>
@@ -49,8 +51,8 @@ function makeCorridor(
 
 export const corridors: Record<Corridor, AnchorAdapter> = {
   PHP: makeCorridor('PHP', true, PHP_ANCHOR_TRANSFER_SERVER),
-  VND: makeCorridor('VND', true, PHP_ANCHOR_TRANSFER_SERVER),
-  IDR: makeCorridor('IDR', true, PHP_ANCHOR_TRANSFER_SERVER),
+  VND: makeCorridor('VND', false, null),
+  IDR: makeCorridor('IDR', false, null),
 }
 
 export function getCorridor(currency: Corridor): AnchorAdapter {

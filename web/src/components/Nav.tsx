@@ -38,6 +38,9 @@ export function Nav() {
             <NavLink to="/vault" className={navLinkClass}>
               Vault
             </NavLink>
+            <NavLink to="/finance" className={navLinkClass}>
+              Finance
+            </NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-3 max-sm:gap-2">

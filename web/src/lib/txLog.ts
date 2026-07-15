@@ -4,6 +4,8 @@ export interface TxLogEntry {
   label: string
   hash: string
   timestamp: number
+  /** Dollar amount tied to the action (e.g. the share just cleared), when known. */
+  amount?: number
 }
 
 const STORAGE_KEY = 'splitrails.txLog'
@@ -25,9 +27,9 @@ function write(entries: TxLogEntry[]) {
   }
 }
 
-export function logTx(label: string, hash: string) {
+export function logTx(label: string, hash: string, amount?: number) {
   const entries = read()
-  entries.push({ label, hash, timestamp: Date.now() })
+  entries.push({ label, hash, timestamp: Date.now(), amount })
   write(entries)
 }
 

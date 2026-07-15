@@ -4,6 +4,7 @@ import { WalletProvider } from './context/WalletContext'
 import { AuditComplete } from './pages/AuditComplete'
 import { AuditLedger } from './pages/AuditLedger'
 import { Dashboard } from './pages/Dashboard'
+import { Finance } from './pages/Finance'
 import { History } from './pages/History'
 import { Login } from './pages/Login'
 import { PasskeyDemo } from './pages/PasskeyDemo'
@@ -38,6 +39,7 @@ function App() {
             <Route path="expired" element={<SplitExpired />} />
             <Route path="activity" element={<History />} />
             <Route path="vault" element={<Vault />} />
+            <Route path="finance" element={<Finance />} />
             <Route path="profile" element={<Profile />} />
             <Route path="passkey-demo" element={<PasskeyDemo />} />
           </Route>

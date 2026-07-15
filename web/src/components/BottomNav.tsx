@@ -11,6 +11,7 @@ const TABS: Tab[] = [
   { to: '/', end: true, icon: 'pie_chart', label: 'Splits' },
   { to: '/activity', icon: 'history', label: 'Activity' },
   { to: '/vault', icon: 'account_balance', label: 'Vault' },
+  { to: '/finance', icon: 'receipt_long', label: 'Finance' },
   { to: '/profile', icon: 'account_circle', label: 'Profile' },
 ]
 

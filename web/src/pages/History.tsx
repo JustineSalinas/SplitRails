@@ -188,9 +188,18 @@ export function History() {
         {/* Header */}
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
-            <h1 className="text-[32px] font-bold tracking-tight m-0 mb-1.5">Activity</h1>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <h1 className="text-[32px] font-bold tracking-tight m-0">Activity</h1>
+              <span className="text-[9px] font-bold uppercase tracking-[0.04em] bg-neutral-light text-text-muted px-1.5 py-0.5 rounded self-center mt-1">
+                Demo data
+              </span>
+            </div>
             <p className="text-text-secondary text-[15px] m-0">
-              Full transaction history across all your splits
+              Full transaction history across all your splits — sample feed; see the{' '}
+              <Link to="/audit-ledger" className="text-info font-semibold">
+                Audit Ledger
+              </Link>{' '}
+              for live on-chain events.
             </p>
           </div>
           <div className="flex items-center gap-2">

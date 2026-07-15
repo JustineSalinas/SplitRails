@@ -2,9 +2,21 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
-import { settleShare } from '../lib/escrow'
+import { corridors, type Corridor } from '../lib/anchor'
+import { getEscrowClient, settleShare } from '../lib/escrow'
+import { createPasskey, isPasskeySupported, signWithPasskey, verifyAssertion } from '../lib/passkey'
+import { loadPasskeyRegistration, savePasskeyRegistration } from '../lib/passkeyStore'
 
 const DEADLINE_SECONDS = 14 * 3600 + 20 * 60 + 28
+const SHARE_AMOUNT = 1080
+type PayoutCurrency = 'USDC' | Corridor
+
+async function buildSettleChallenge(address: string): Promise<Uint8Array> {
+  const client = getEscrowClient(address)
+  const tx = await client.settle({ participant: address })
+  const bytes = new TextEncoder().encode(tx.toXDR())
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
+}
 
 function formatCountdown(totalSeconds: number) {
   const h = Math.floor(totalSeconds / 3600)
@@ -19,6 +31,12 @@ export function PaySlice() {
   const [secondsLeft, setSecondsLeft] = useState(DEADLINE_SECONDS)
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState<string | null>(null)
+  const [biometricStage, setBiometricStage] = useState<'idle' | 'verifying' | 'verified' | 'unsupported'>(
+    isPasskeySupported() ? 'idle' : 'unsupported',
+  )
+  const [payoutCurrency, setPayoutCurrency] = useState<PayoutCurrency>('USDC')
+  const [anchorLoading, setAnchorLoading] = useState(false)
+  const [anchorError, setAnchorError] = useState<string | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,6 +44,20 @@ export function PaySlice() {
     }, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  async function verifyWithPasskey(address: string) {
+    setBiometricStage('verifying')
+    let registration = loadPasskeyRegistration(address)
+    if (!registration) {
+      registration = await createPasskey(address)
+      savePasskeyRegistration(address, registration)
+    }
+    const challenge = await buildSettleChallenge(address)
+    const assertion = await signWithPasskey(registration.credentialId, challenge)
+    const ok = await verifyAssertion(assertion, registration.publicKeyJwk)
+    if (!ok) throw new Error('Biometric verification failed — signature did not match')
+    setBiometricStage('verified')
+  }
 
   async function handleClaim() {
     if (!address) {
@@ -35,12 +67,30 @@ export function PaySlice() {
     setPaying(true)
     setPayError(null)
     try {
+      if (isPasskeySupported()) {
+        await verifyWithPasskey(address)
+      }
       await settleShare(address, address)
       navigate('/locked')
     } catch (err) {
       setPayError(err instanceof Error ? err.message : 'Failed to settle your share')
     } finally {
       setPaying(false)
+    }
+  }
+
+  async function handleOpenAnchor() {
+    if (payoutCurrency === 'USDC') return
+    const corridor = corridors[payoutCurrency]
+    setAnchorLoading(true)
+    setAnchorError(null)
+    try {
+      const { interactiveUrl } = await corridor.initWithdraw(SHARE_AMOUNT.toFixed(2))
+      window.open(interactiveUrl, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      setAnchorError(err instanceof Error ? err.message : 'Could not reach the anchor')
+    } finally {
+      setAnchorLoading(false)
     }
   }
 
@@ -154,7 +204,7 @@ export function PaySlice() {
               </div>
 
               <div className="mb-7">
-                <div className="text-[44px] font-bold tracking-tight leading-none">$1,080.00</div>
+                <div className="text-[44px] font-bold tracking-tight leading-none">${SHARE_AMOUNT.toFixed(2)}</div>
                 <p className="text-[13px] text-text-secondary mt-2.5 mb-0">
                   Includes AWS compute, S3 storage &amp; Figma seats
                 </p>
@@ -166,8 +216,16 @@ export function PaySlice() {
                 disabled={paying || connecting}
                 className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3 disabled:opacity-60"
               >
-                <span className="msym text-lg"></span>
-                {!address ? 'Connect wallet to pay' : paying ? 'Settling…' : 'Pay your slice'}
+                <span className="msym text-lg">
+                  {!address ? 'account_balance_wallet' : biometricStage === 'verifying' ? 'fingerprint' : 'lock'}
+                </span>
+                {!address
+                  ? 'Connect wallet to pay'
+                  : paying && biometricStage === 'verifying'
+                    ? 'Verify with Face ID / Touch ID…'
+                    : paying
+                      ? 'Settling…'
+                      : 'Approve & Settle'}
               </button>
 
               {(payError ?? walletError) && (
@@ -175,23 +233,69 @@ export function PaySlice() {
               )}
 
               <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
-                <span className="msym text-sm">lock</span>
-                Secured by SplitRails 256-bit encryption
+                <span className="msym text-sm">{biometricStage === 'unsupported' ? 'lock' : 'fingerprint'}</span>
+                {biometricStage === 'unsupported'
+                  ? 'Biometric approval unavailable on this device — signed with your wallet only'
+                  : 'Passwordless approval via Face ID / Touch ID, then wallet-signed on-chain'}
               </div>
             </div>
 
-            {/* Currency / fee disclosure */}
+            {/* Payout currency picker — real SEP-24 hand-off for the PHP testnet anchor */}
             <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-5 mt-5">
-              <div className="flex items-center justify-between py-2">
-                <span className="text-xs text-text-secondary">Billed in JPY</span>
-                <span className="font-mono text-xs text-text-primary">¥163,080</span>
+              <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-3">
+                Payout currency
               </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-xs text-text-secondary">Charged in USD</span>
-                <span className="font-mono text-xs font-bold text-text-primary">$1,080.00</span>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {(['USDC', 'PHP', 'VND', 'IDR'] as const).map((code) => {
+                  const isUsdc = code === 'USDC'
+                  const corridor = isUsdc ? null : corridors[code]
+                  const disabled = !isUsdc && !corridor!.enabled
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => setPayoutCurrency(code)}
+                      title={disabled ? `${code} corridor is architecture-ready but not connected in this demo` : undefined}
+                      className={`py-2 rounded-lg text-xs font-bold border-[0.5px] ${
+                        payoutCurrency === code
+                          ? 'bg-gradient-brand text-white border-transparent cursor-pointer'
+                          : disabled
+                            ? 'bg-neutral-light text-text-muted border-border cursor-not-allowed'
+                            : 'bg-white text-text-primary border-border cursor-pointer hover:bg-neutral-light'
+                      }`}
+                    >
+                      {code}
+                    </button>
+                  )
+                })}
               </div>
-              <hr className="h-[0.5px] bg-border/50 border-none my-1" />
-              <div className="flex items-center justify-between py-2">
+
+              {payoutCurrency === 'USDC' ? (
+                <p className="text-xs text-text-secondary m-0">
+                  Settling directly in USDC on-chain — no anchor hand-off needed.
+                </p>
+              ) : corridors[payoutCurrency].enabled ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleOpenAnchor}
+                    disabled={anchorLoading}
+                    className="w-full py-2.5 rounded-full bg-action text-white border-none text-xs font-bold cursor-pointer disabled:opacity-60"
+                  >
+                    {anchorLoading ? 'Opening anchor…' : `Continue payout in ${payoutCurrency} (testnet anchor)`}
+                  </button>
+                  {anchorError && <div className="mt-2 text-[11px] text-[#93000a]">{anchorError}</div>}
+                </>
+              ) : (
+                <p className="text-xs text-text-muted m-0">
+                  {payoutCurrency} corridor is configured and architecture-ready, but not wired to a live anchor in
+                  this demo.
+                </p>
+              )}
+
+              <hr className="h-[0.5px] bg-border/50 border-none my-3" />
+              <div className="flex items-center justify-between py-1">
                 <div className="flex items-center gap-1.5">
                   <span className="msym text-text-muted text-sm">bolt</span>
                   <span className="text-xs text-text-secondary">Stellar network fee</span>
