@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 
 type Category = 'all' | 'created' | 'approved' | 'settled' | 'rollback' | 'reminder'
+type DateRange = 'all' | 'today' | 'yesterday'
+
+const DATE_RANGES: { label: string; value: DateRange }[] = [
+  { label: 'All dates', value: 'all' },
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'yesterday' },
+]
 
 interface DetailParticipant {
   initials: string
@@ -126,6 +133,9 @@ export function History() {
   const [activeFilter, setActiveFilter] = useState<Category>('all')
   const [search, setSearch] = useState('')
   const [openIds, setOpenIds] = useState<Set<number>>(() => new Set([1]))
+  const [dateRange, setDateRange] = useState<DateRange>('all')
+  const [dateMenuOpen, setDateMenuOpen] = useState(false)
+  const [olderLoaded, setOlderLoaded] = useState(false)
 
   function toggleRow(id: number) {
     setOpenIds((prev) => {
@@ -143,11 +153,12 @@ export function History() {
     const query = search.trim().toLowerCase()
     return EVENTS.filter((e) => {
       const matchesFilter = activeFilter === 'all' || e.category === activeFilter
+      const matchesDate = dateRange === 'all' || e.section.toLowerCase() === dateRange
       const matchesSearch =
         !query || `${e.titleText}${e.amount ?? ''} ${e.tag}`.toLowerCase().includes(query)
-      return matchesFilter && matchesSearch
+      return matchesFilter && matchesDate && matchesSearch
     })
-  }, [activeFilter, search])
+  }, [activeFilter, dateRange, search])
 
   const sections = useMemo(() => {
     const order: ActivityEvent['section'][] = ['Today', 'Yesterday']
@@ -185,9 +196,14 @@ export function History() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => {
+                setActiveFilter('all')
+                setDateRange('all')
+                setSearch('')
+              }}
               className="border-none bg-action text-white py-2 px-3.5 rounded-full cursor-pointer text-xs font-bold inline-flex items-center gap-1.5 shadow-[0_2px_8px_rgba(232,99,10,0.25)]"
             >
-              <span className="msym text-base">filter_list</span>Filter
+              <span className="msym text-base">filter_list</span>Reset filters
             </button>
             <button
               type="button"
@@ -259,12 +275,35 @@ export function History() {
                 className="border-none bg-transparent outline-none text-[13px] text-text-primary flex-1 font-sans placeholder:text-text-muted"
               />
             </div>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 py-2.5 px-3.5 bg-white border-[0.5px] border-border rounded-[10px] text-xs font-semibold text-text-primary cursor-pointer"
-            >
-              Date<span className="msym text-[15px]">expand_more</span>
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDateMenuOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 py-2.5 px-3.5 bg-white border-[0.5px] border-border rounded-[10px] text-xs font-semibold text-text-primary cursor-pointer"
+              >
+                {DATE_RANGES.find((r) => r.value === dateRange)?.label ?? 'Date'}
+                <span className="msym text-[15px]">expand_more</span>
+              </button>
+              {dateMenuOpen && (
+                <div className="absolute top-full right-0 mt-1.5 bg-white border-[0.5px] border-border/50 rounded-[10px] shadow-card py-1 z-10 min-w-[140px]">
+                  {DATE_RANGES.map((r) => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => {
+                        setDateRange(r.value)
+                        setDateMenuOpen(false)
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-xs cursor-pointer border-none bg-transparent hover:bg-neutral-light ${
+                        dateRange === r.value ? 'font-semibold text-text-primary' : 'text-text-secondary'
+                      }`}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -371,9 +410,11 @@ export function History() {
         <div className="flex justify-center mt-8">
           <button
             type="button"
-            className="border-[0.5px] border-border bg-neutral-light text-info py-3 px-7 rounded-[10px] text-[13px] font-bold cursor-pointer"
+            onClick={() => setOlderLoaded(true)}
+            disabled={olderLoaded}
+            className="border-[0.5px] border-border bg-neutral-light text-info py-3 px-7 rounded-[10px] text-[13px] font-bold cursor-pointer disabled:opacity-60 disabled:cursor-default disabled:text-text-muted"
           >
-            Load older activity
+            {olderLoaded ? 'No older activity' : 'Load older activity'}
           </button>
         </div>
       </main>

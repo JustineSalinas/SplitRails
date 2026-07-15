@@ -107,12 +107,28 @@ function OnChainLink({ hash }: { hash: string }) {
   )
 }
 
+type EscrowFilter = 'all' | 'active' | 'settled'
+
+const ESCROW_FILTERS: { label: string; value: EscrowFilter }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Active', value: 'active' },
+  { label: 'Settled', value: 'settled' },
+]
+
 export function Vault() {
   const [defaultMethodId, setDefaultMethodId] = useState(1)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [cardForm, setCardForm] = useState<NewCardForm>(EMPTY_CARD_FORM)
+  const [escrowFilter, setEscrowFilter] = useState<EscrowFilter>('all')
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const visibleEscrows = ESCROWS.filter((e) => {
+    if (escrowFilter === 'all') return true
+    if (escrowFilter === 'settled') return e.chip.label === 'Settled'
+    return e.chip.label !== 'Settled'
+  })
 
   useEffect(() => () => clearTimeout(toastTimer.current), [])
 
@@ -147,9 +163,35 @@ export function Vault() {
               Where your money is right now — always linked to a live escrow
             </p>
           </div>
-          <button type="button" className={`${buttonBaseClasses} ${buttonVariantClasses.ghost}`}>
-            <span className="msym text-base">filter_list</span>Filter
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setFilterMenuOpen((v) => !v)}
+              className={`${buttonBaseClasses} ${buttonVariantClasses.ghost}`}
+            >
+              <span className="msym text-base">filter_list</span>
+              {ESCROW_FILTERS.find((f) => f.value === escrowFilter)?.label ?? 'Filter'}
+            </button>
+            {filterMenuOpen && (
+              <div className="absolute top-full right-0 mt-1.5 bg-white border-[0.5px] border-border/50 rounded-[10px] shadow-card py-1 z-10 min-w-[120px]">
+                {ESCROW_FILTERS.map((f) => (
+                  <button
+                    key={f.value}
+                    type="button"
+                    onClick={() => {
+                      setEscrowFilter(f.value)
+                      setFilterMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-3.5 py-2 text-xs cursor-pointer border-none bg-transparent hover:bg-neutral-light ${
+                      escrowFilter === f.value ? 'font-semibold text-text-primary' : 'text-text-secondary'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Summary */}
@@ -178,12 +220,15 @@ export function Vault() {
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold m-0">Active escrows</h2>
           <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted">
-            {ESCROWS.length} positions
+            {visibleEscrows.length} positions
           </span>
         </div>
 
         <div className="flex flex-col gap-3 mb-8">
-          {ESCROWS.map((e) => (
+          {visibleEscrows.length === 0 && (
+            <div className="text-center text-sm text-text-muted py-10">No escrows match this filter.</div>
+          )}
+          {visibleEscrows.map((e) => (
             <div
               key={e.id}
               className="bg-white border-[0.5px] border-border/50 rounded-[14px] shadow-card p-5 flex items-center gap-4 flex-wrap"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
 import { baseUnitsToDollars, truncateAddress } from '../lib/amounts'
@@ -74,6 +75,7 @@ export function ViewAudit() {
   const [locking, setLocking] = useState(false)
   const [lockError, setLockError] = useState<string | null>(null)
   const [liveTotals, setLiveTotals] = useState<{ cleared: number; required: number } | null>(null)
+  const [nudged, setNudged] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -131,6 +133,11 @@ export function ViewAudit() {
     } finally {
       setLocking(false)
     }
+  }
+
+  function handleNudge() {
+    setNudged(true)
+    setTimeout(() => setNudged(false), 2000)
   }
 
   const displayParticipants = liveParticipants ?? participants
@@ -223,9 +230,12 @@ export function ViewAudit() {
 
             <button
               type="button"
-              className="mt-7 inline-flex items-center gap-2 text-white bg-action px-4.5 py-2.5 rounded-full text-[13px] font-bold uppercase tracking-[0.06em] cursor-pointer border-none shadow-[0_2px_8px_rgba(232,99,10,0.3)]"
+              onClick={handleNudge}
+              disabled={nudged}
+              className="mt-7 inline-flex items-center gap-2 text-white bg-action px-4.5 py-2.5 rounded-full text-[13px] font-bold uppercase tracking-[0.06em] cursor-pointer border-none shadow-[0_2px_8px_rgba(232,99,10,0.3)] disabled:opacity-60"
             >
-              <span className="msym text-base">campaign</span>Nudge pending
+              <span className="msym text-base">{nudged ? 'check' : 'campaign'}</span>
+              {nudged ? 'Reminder sent' : 'Nudge pending'}
             </button>
           </div>
 
@@ -302,12 +312,12 @@ export function ViewAudit() {
               ))}
 
               <div className="px-6 py-4 text-center">
-                <button
-                  type="button"
+                <Link
+                  to="/audit-ledger"
                   className="bg-transparent border-none text-sm font-semibold text-text-primary cursor-pointer"
                 >
                   View all details
-                </button>
+                </Link>
               </div>
             </div>
 

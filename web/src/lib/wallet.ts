@@ -33,8 +33,28 @@ function hasFreighterExtension(): boolean {
   return Boolean((window as unknown as { freighter?: boolean }).freighter)
 }
 
-function assertWalletInstalled(): void {
-  if (!hasFreighterExtension()) {
+const DETECTION_RETRY_MS = 100
+const DETECTION_RETRIES = 5
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+// The extension injects window.freighter asynchronously once its content
+// script loads, which can race with a check that runs on first paint right
+// after a reload — the flag can still be absent even though the extension
+// is installed and will be ready a beat later. Poll briefly before
+// concluding it's actually missing.
+async function waitForFreighterExtension(): Promise<boolean> {
+  for (let attempt = 0; attempt < DETECTION_RETRIES; attempt++) {
+    if (hasFreighterExtension()) return true
+    await sleep(DETECTION_RETRY_MS)
+  }
+  return hasFreighterExtension()
+}
+
+async function assertWalletInstalled(): Promise<void> {
+  if (!(await waitForFreighterExtension())) {
     throw new Error(NOT_INSTALLED_MESSAGE)
   }
 }
@@ -57,25 +77,25 @@ function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
 // shown, since there's nothing to answer the postMessage handshake).
 
 export async function isWalletAvailable(): Promise<boolean> {
-  if (!hasFreighterExtension()) return false
+  if (!(await waitForFreighterExtension())) return false
   const result = await withTimeout(freighterIsConnected(), 'Freighter did not respond in time.')
   return unwrap(result).isConnected
 }
 
 export async function connect(): Promise<string> {
-  assertWalletInstalled()
+  await assertWalletInstalled()
   const result = await requestAccess()
   return unwrap(result).address
 }
 
 export async function getAddress(): Promise<string> {
-  assertWalletInstalled()
+  await assertWalletInstalled()
   const result = await withTimeout(freighterGetAddress(), 'Freighter did not respond in time.')
   return unwrap(result).address
 }
 
 export async function signTransaction(transactionXdr: string, address: string): Promise<string> {
-  assertWalletInstalled()
+  await assertWalletInstalled()
   const result = await freighterSignTransaction(transactionXdr, { networkPassphrase, address })
   return unwrap(result).signedTxXdr
 }
