@@ -76,5 +76,13 @@ describe('wallet', () => {
       const address = await wallet.connect()
       expect(address).toBe('GABC123')
     })
+
+    it('still returns the address if the network check itself fails or times out', async () => {
+      setFreighterInstalled(true)
+      mocks.requestAccess.mockResolvedValue({ address: 'GABC123' })
+      mocks.getNetworkDetails.mockRejectedValue(new Error('boom'))
+      const address = await wallet.connect()
+      expect(address).toBe('GABC123')
+    })
   })
 })

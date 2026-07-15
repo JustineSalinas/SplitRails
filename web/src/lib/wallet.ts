@@ -14,9 +14,16 @@ const NOT_INSTALLED_MESSAGE =
 // A user on the wrong Freighter network (e.g. Mainnet while this app runs on Testnet) would
 // otherwise get whatever raw error the RPC/contract call throws back — usually an opaque
 // "transaction failed" with no indication of the actual cause. Check up front and say so.
+// This must never block connect()/signTransaction() on its OWN failure (timeout, a Freighter
+// version that answers slowly, etc.) — only on a genuine, confirmed mismatch. Swallowing an
+// inconclusive check is safer than accidentally locking users out of a working wallet.
 async function assertCorrectNetwork(): Promise<void> {
-  const details = await withTimeout(getNetworkDetails(), 'Freighter did not respond in time.')
-  const result = unwrap(details)
+  let result: { networkPassphrase: string }
+  try {
+    result = unwrap(await withTimeout(getNetworkDetails(), 'network check timed out'))
+  } catch {
+    return
+  }
   if (result.networkPassphrase !== networkPassphrase) {
     throw new Error(
       `Freighter is set to a different network than this app (expected ${stellarNetwork}). Switch networks in the Freighter extension and try again.`,
