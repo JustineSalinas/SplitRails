@@ -54,13 +54,15 @@ describe('wallet', () => {
 
     it('rejects with a friendly message when Freighter is on the wrong network', async () => {
       setFreighterInstalled(true)
+      // Access is granted first (Freighter won't answer network queries until it is),
+      // then the network mismatch is what surfaces the error.
+      mocks.requestAccess.mockResolvedValue({ address: 'GABC123' })
       mocks.getNetworkDetails.mockResolvedValue({
         network: 'PUBLIC',
         networkUrl: 'https://horizon.stellar.org',
         networkPassphrase: 'Public Global Stellar Network ; September 2015',
       })
       await expect(wallet.connect()).rejects.toThrow(/different network/i)
-      expect(mocks.requestAccess).not.toHaveBeenCalled()
     })
 
     it('proceeds to requestAccess() once the network passphrase matches', async () => {

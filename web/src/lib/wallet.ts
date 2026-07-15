@@ -98,9 +98,13 @@ export async function isWalletAvailable(): Promise<boolean> {
 
 export async function connect(): Promise<string> {
   await assertWalletInstalled()
-  await assertCorrectNetwork()
+  // Request access *before* checking the network: Freighter won't answer
+  // getNetworkDetails() until the app is allowlisted, so a network check first
+  // would throw before the access prompt ever appears.
   const result = await requestAccess()
-  return unwrap(result).address
+  const address = unwrap(result).address
+  await assertCorrectNetwork()
+  return address
 }
 
 export async function getAddress(): Promise<string> {
