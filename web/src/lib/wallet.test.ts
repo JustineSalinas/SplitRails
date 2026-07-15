@@ -31,12 +31,16 @@ describe('wallet', () => {
   })
 
   describe('isWalletAvailable', () => {
-    it('returns false immediately when the extension is not installed, without calling the API', async () => {
-      setFreighterInstalled(false)
-      const result = await wallet.isWalletAvailable()
-      expect(result).toBe(false)
-      expect(mocks.isConnected).not.toHaveBeenCalled()
-    })
+    it(
+      'returns false when nothing ever answers isConnected() (extension genuinely absent)',
+      async () => {
+        setFreighterInstalled(false)
+        mocks.isConnected.mockReturnValue(new Promise(() => {})) // never resolves
+        const result = await wallet.isWalletAvailable()
+        expect(result).toBe(false)
+      },
+      7000,
+    )
 
     it('defers to Freighter isConnected() once the extension is present', async () => {
       setFreighterInstalled(true)
@@ -44,12 +48,40 @@ describe('wallet', () => {
       const result = await wallet.isWalletAvailable()
       expect(result).toBe(true)
     })
+
+    it('still detects a genuinely installed extension even when window.freighter is unset', async () => {
+      // Seen live: a real, unlocked, funded Freighter install that never sets the flag —
+      // isConnected() answering at all (regardless of the boolean) proves it's there.
+      setFreighterInstalled(false)
+      mocks.isConnected.mockResolvedValue({ isConnected: false })
+      const result = await wallet.isWalletAvailable()
+      expect(result).toBe(false) // not yet connected, but the call didn't reject/hang
+      expect(mocks.isConnected).toHaveBeenCalled()
+    })
   })
 
   describe('connect', () => {
-    it('fails fast with an install message when the extension is missing', async () => {
+    it(
+      'fails fast with an install message when nothing answers at all',
+      async () => {
+        setFreighterInstalled(false)
+        mocks.isConnected.mockReturnValue(new Promise(() => {})) // never resolves
+        await expect(wallet.connect()).rejects.toThrow(/freighter.app/i)
+      },
+      7000,
+    )
+
+    it('proceeds past the install check when the extension responds even without window.freighter set', async () => {
       setFreighterInstalled(false)
-      await expect(wallet.connect()).rejects.toThrow(/freighter.app/i)
+      mocks.isConnected.mockResolvedValue({ isConnected: false })
+      mocks.getNetworkDetails.mockResolvedValue({
+        network: 'TESTNET',
+        networkUrl: 'https://horizon-testnet.stellar.org',
+        networkPassphrase: 'Test SDF Network ; September 2015',
+      })
+      mocks.requestAccess.mockResolvedValue({ address: 'GABC123' })
+      const address = await wallet.connect()
+      expect(address).toBe('GABC123')
     })
 
     it('rejects with a friendly message when Freighter is on the wrong network', async () => {

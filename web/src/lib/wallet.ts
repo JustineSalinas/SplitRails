@@ -75,7 +75,16 @@ async function waitForFreighterExtension(): Promise<boolean> {
 }
 
 async function assertWalletInstalled(): Promise<void> {
-  if (!(await waitForFreighterExtension())) {
+  if (await waitForFreighterExtension()) return
+  // window.freighter can be absent even when the extension is genuinely installed, unlocked,
+  // and funded — seen live. freighter-api's own isConnected() has a real fallback for this
+  // exact case: a postMessage handshake with the content script that doesn't depend on the
+  // flag at all. Probe that (bounded, since with a truly absent extension nothing ever
+  // answers) before concluding the extension is really missing, rather than trusting the
+  // flag alone and producing a false "not detected".
+  try {
+    await withTimeout(freighterIsConnected(), 'not responding')
+  } catch {
     throw new Error(NOT_INSTALLED_MESSAGE)
   }
 }
@@ -98,9 +107,16 @@ function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
 // shown, since there's nothing to answer the postMessage handshake).
 
 export async function isWalletAvailable(): Promise<boolean> {
-  if (!(await waitForFreighterExtension())) return false
-  const result = await withTimeout(freighterIsConnected(), 'Freighter did not respond in time.')
-  return unwrap(result).isConnected
+  // Don't gate on window.freighter alone — it can be absent on a genuinely installed,
+  // responsive extension (see assertWalletInstalled). isConnected() itself has the real
+  // fallback (a postMessage handshake), so just call it directly, bounded by a timeout for
+  // the case where nothing answers at all.
+  try {
+    const result = await withTimeout(freighterIsConnected(), 'Freighter did not respond in time.')
+    return unwrap(result).isConnected
+  } catch {
+    return false
+  }
 }
 
 export async function connect(): Promise<string> {
