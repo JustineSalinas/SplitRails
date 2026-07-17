@@ -1,4 +1,4 @@
-# 🚂 SplitRails
+# SplitRails
 
 **Atomic, transaction-bound expense escrow for cross-border teams — built on Stellar.**
 
@@ -6,12 +6,12 @@ Three freelancers in three countries share one client's bills. Today, one person
 
 SplitRails replaces that: one person creates a digital invoice that splits the bill automatically, each partner approves their portion, the money is held safely by a smart contract until **everyone** has paid, and then it is released to the vendor all at once — or refunded to everyone if someone doesn't pay in time. Every step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
 
-> 🏆 Built for the **APAC Stellar Hackathon** (Rise In × Stellar Development Foundation).
+> Built for the **APAC Stellar Hackathon** (Rise In × Stellar Development Foundation).
 > Deployed Live on Stellar Testnet: [splitrails.vercel.app](https://splitrails.vercel.app)
 
 ---
 
-## 🔗 Smart Contract Architecture
+## Smart Contract Architecture
 
 Every invoice created gets its own **isolated, sandboxed contract instance** deployed from our on-chain WASM blueprint. This state-isolation guarantees maximum security.
 
@@ -25,7 +25,7 @@ Every invoice created gets its own **isolated, sandboxed contract instance** dep
 
 ---
 
-## 🛠️ Tech Stack & Integrations
+## Tech Stack & Integrations
 
 * **Smart Contracts:** Rust & Soroban, compiled to WebAssembly.
 * **Frontend:** React (TypeScript) + Vite, styled using a TailwindCSS (v4) glassmorphic system.
@@ -35,7 +35,7 @@ Every invoice created gets its own **isolated, sandboxed contract instance** dep
 
 ---
 
-## ⚠️ Demo Restrictions & Product Constraints
+## Demo Restrictions & Product Constraints
 
 To review our submission properly, please keep the following hackathon MVP scope constraints in mind:
 
@@ -45,7 +45,7 @@ To review our submission properly, please keep the following hackathon MVP scope
 
 ---
 
-## 🚀 Step-by-Step Live Walkthrough Flow
+## Step-by-Step Live Walkthrough Flow
 
 To experience the full end-to-end on-chain lifecycle:
 
@@ -53,11 +53,3 @@ To experience the full end-to-end on-chain lifecycle:
 2. **Review & Deploy:** Click **Review & Deploy** → **Deploy Escrow & Send**. Approve the Freighter pop-up to initialize the clone contract on the testnet.
 3. **Settle Share:** Copy the share link from the success page and navigate to it. Connect your wallet, click **Approve & Settle**, approve the Touch ID/Face ID prompt, and confirm the Freighter transfer.
 4. **Audit & Export:** Navigate to the **Audit Ledger** to view the live timeline and click **Export Ledger** to download a GL-tagged CSV.
-
----
-
-## 📄 Pitch & Preparation Resources
-
-All presentation and script materials have been compiled in the `docs` folder:
-* **[PITCH_PREP.md](docs/PITCH_PREP.md):** 14 tough judge Q&A questions and answers.
-* **[PITCH_SCRIPT.html](docs/PITCH_SCRIPT.html):** 15-slide, 3-minute read-along presentation script with slide timing and visual cues.
