@@ -3,7 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useWallet } from '../context/WalletContext'
 import { corridors, type Corridor } from '../lib/anchor'
-import { getEscrowClient, settleShare } from '../lib/escrow'
+import {
+  getEscrowClient,
+  settleShare,
+  getParticipantShare,
+  isParticipantCleared,
+  getEscrowTotals,
+} from '../lib/escrow'
+import { baseUnitsToDollars } from '../lib/amounts'
 import { createPasskey, isPasskeySupported, signWithPasskey, verifyAssertion } from '../lib/passkey'
 import { loadPasskeyRegistration, savePasskeyRegistration } from '../lib/passkeyStore'
 import { logPasskeyGate } from '../lib/txLog'
@@ -26,6 +33,30 @@ function formatCountdown(totalSeconds: number) {
   return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':')
 }
 
+function parseSettleError(err: unknown): string {
+  if (!(err instanceof Error)) {
+    return 'Failed to settle your share. Please try again.'
+  }
+  const msg = err.message
+  if (
+    msg.includes('resulting balance is not within the allowed range') ||
+    msg.includes('Error(Contract, #10)') ||
+    msg.includes('VM trap')
+  ) {
+    return 'Insufficient USDC balance: Your connected wallet does not have enough testnet USDC to pay your share. Please switch to a funded wallet or request testnet USDC from the Circle Faucet.'
+  }
+  if (msg.includes('Error(Contract, #3)') || msg.includes('UnknownParticipant')) {
+    return 'Your connected wallet is not registered as a participant in this split escrow. Please switch accounts in Freighter to one of the split participants.'
+  }
+  if (msg.includes('AlreadyCleared') || msg.includes('Error(Contract, #6)')) {
+    return 'You have already settled your share for this split.'
+  }
+  if (msg.includes('NotOpen') || msg.includes('Error(Contract, #7)')) {
+    return 'This split is no longer open for payment.'
+  }
+  return msg
+}
+
 export function PaySlice() {
   const navigate = useNavigate()
   const { contractId } = useParams()
@@ -40,12 +71,63 @@ export function PaySlice() {
   const [anchorLoading, setAnchorLoading] = useState(false)
   const [anchorError, setAnchorError] = useState<string | null>(null)
 
+  // Live contract state
+  const [liveShare, setLiveShare] = useState<number | null>(null)
+  const [isParticipant, setIsParticipant] = useState(true)
+  const [isCleared, setIsCleared] = useState(false)
+  const [liveTotalCleared, setLiveTotalCleared] = useState<number | null>(null)
+  const [liveTotalRequired, setLiveTotalRequired] = useState<number | null>(null)
+  const [isLiveContract, setIsLiveContract] = useState(false)
+
   useEffect(() => {
     const interval = setInterval(() => {
       setSecondsLeft((s) => Math.max(s - 1, 0))
     }, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    if (!contractId) {
+      setIsLiveContract(false)
+      return
+    }
+    let cancelled = false
+    async function loadLiveContractState() {
+      try {
+        const totals = await getEscrowTotals(contractId)
+        if (cancelled) return
+        setLiveTotalCleared(baseUnitsToDollars(totals[0]))
+        setLiveTotalRequired(baseUnitsToDollars(totals[1]))
+        setIsLiveContract(true)
+
+        if (address) {
+          try {
+            const shareBig = await getParticipantShare(address, contractId)
+            if (cancelled) return
+            setLiveShare(baseUnitsToDollars(shareBig))
+            setIsParticipant(true)
+
+            const cleared = await isParticipantCleared(address, contractId)
+            if (cancelled) return
+            setIsCleared(cleared)
+          } catch (shareErr: any) {
+            if (cancelled) return
+            const errorMsg = shareErr.message || ''
+            if (errorMsg.includes('UnknownParticipant') || errorMsg.includes('Error(Contract, #3)')) {
+              setIsParticipant(false)
+            }
+          }
+        }
+      } catch (err) {
+        if (cancelled) return
+        setIsLiveContract(false)
+      }
+    }
+    loadLiveContractState()
+    return () => {
+      cancelled = true
+    }
+  }, [contractId, address])
 
   async function verifyWithPasskey(address: string) {
     setBiometricStage('verifying')
@@ -78,7 +160,7 @@ export function PaySlice() {
       await settleShare(address, address, contractId)
       navigate('/locked')
     } catch (err) {
-      setPayError(err instanceof Error ? err.message : 'Failed to settle your share')
+      setPayError(parseSettleError(err))
       if (isPasskeySupported()) {
         setBiometricStage('idle')
       }
@@ -93,7 +175,8 @@ export function PaySlice() {
     setAnchorLoading(true)
     setAnchorError(null)
     try {
-      const { interactiveUrl } = await corridor.initWithdraw(SHARE_AMOUNT.toFixed(2))
+      const shareAmountVal = isLiveContract && liveShare !== null ? liveShare : SHARE_AMOUNT
+      const { interactiveUrl } = await corridor.initWithdraw(shareAmountVal.toFixed(2))
       window.open(interactiveUrl, '_blank', 'noopener,noreferrer')
     } catch (err) {
       setAnchorError(err instanceof Error ? err.message : 'Could not reach the anchor')
@@ -101,6 +184,7 @@ export function PaySlice() {
       setAnchorLoading(false)
     }
   }
+
 
   return (
     <div className="text-text-primary font-sans pb-20">
@@ -134,17 +218,33 @@ export function PaySlice() {
                     Deadline countdown
                   </div>
                 </div>
-              </div>
-
-              {/* Progress */}
+              </div>              {/* Progress */}
               <div className="flex items-end justify-between mb-2">
                 <div className="font-mono accent-grad-text text-2xl font-bold tracking-tight">
-                  $5,550.00 <span className="font-mono text-text-secondary font-medium text-sm">/ $7,200.00</span>
+                  ${(isLiveContract && liveTotalCleared !== null ? liveTotalCleared : 5550).toFixed(2)}{' '}
+                  <span className="font-mono text-text-secondary font-medium text-sm">
+                    / ${(isLiveContract && liveTotalRequired !== null ? liveTotalRequired : 7200).toFixed(2)}
+                  </span>
                 </div>
-                <div className="text-[13px] font-bold">77% collected</div>
+                <div className="text-[13px] font-bold">
+                  {Math.round(
+                    (((isLiveContract && liveTotalCleared !== null ? liveTotalCleared : 5550) /
+                      (isLiveContract && liveTotalRequired !== null ? liveTotalRequired : 7200)) *
+                      100)
+                  )}% collected
+                </div>
               </div>
               <div className="h-2.5 w-full bg-neutral-light rounded-full overflow-hidden">
-                <div className="h-full w-[77%] rounded-full bg-gradient-brand" />
+                <div
+                  className="h-full rounded-full bg-gradient-brand transition-all duration-500"
+                  style={{
+                    width: `${Math.round(
+                      (((isLiveContract && liveTotalCleared !== null ? liveTotalCleared : 5550) /
+                        (isLiveContract && liveTotalRequired !== null ? liveTotalRequired : 7200)) *
+                        100)
+                    )}%`,
+                  }}
+                />
               </div>
 
               <div className="flex items-center gap-2.5 mt-4.5">
@@ -154,7 +254,9 @@ export function PaySlice() {
                   <Avatar initials="MK" bg="#263143" textColor="white" size={32} className="-mr-2" />
                   <Avatar initials="+4" bg="#ECEDF9" textColor="#454652" size={32} />
                 </div>
-                <span className="text-[13px] text-action-hover font-semibold">7 participants joined</span>
+                <span className="text-[13px] text-action-hover font-semibold">
+                  {isLiveContract ? 'Live escrow contract tracking active' : '7 participants joined'}
+                </span>
               </div>
             </div>
 
@@ -168,7 +270,9 @@ export function PaySlice() {
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-0.5">
                     Bill reference
                   </div>
-                  <div className="font-mono text-sm font-semibold">#AWS-Q3-0714</div>
+                  <div className="font-mono text-sm font-semibold">
+                    {isLiveContract ? `#ESCROW-${contractId?.slice(0, 6)}` : '#AWS-Q3-0714'}
+                  </div>
                 </div>
               </div>
               <div className="bg-white border-[0.5px] border-border/60 rounded-[14px] shadow-card p-4.5 flex items-center gap-3.5">
@@ -179,7 +283,9 @@ export function PaySlice() {
                   <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-0.5">
                     Payment protection
                   </div>
-                  <div className="text-sm font-semibold">Rails-Escrow active</div>
+                  <div className="text-sm font-semibold">
+                    {isLiveContract ? 'Soroban On-Chain' : 'Rails-Escrow active'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -198,7 +304,9 @@ export function PaySlice() {
                   className="w-[180px] h-[180px] rounded-full shadow-[inset_0_0_0_0.5px_rgba(198,197,212,0.6)]"
                   style={{
                     background:
-                      'conic-gradient(from 0deg, #007AFF 0deg 54deg, #00C7BE 54deg 60deg, #FF9500 60deg 277deg, #ECEDF9 277deg 360deg)',
+                      isLiveContract && liveShare !== null && liveTotalRequired !== null
+                        ? `conic-gradient(from 0deg, #007AFF 0deg ${Math.round((liveShare / liveTotalRequired) * 360)}deg, #ECEDF9 ${Math.round((liveShare / liveTotalRequired) * 360)}deg 360deg)`
+                        : 'conic-gradient(from 0deg, #007AFF 0deg 54deg, #00C7BE 54deg 60deg, #FF9500 60deg 277deg, #ECEDF9 277deg 360deg)',
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -206,47 +314,109 @@ export function PaySlice() {
                     <div className="text-[9px] font-semibold tracking-[0.08em] uppercase text-text-secondary">
                       Your slice
                     </div>
-                    <div className="text-2xl font-bold tracking-tight">15%</div>
+                    <div className="text-2xl font-bold tracking-tight">
+                      {isLiveContract && liveShare !== null && liveTotalRequired !== null
+                        ? `${Math.round((liveShare / liveTotalRequired) * 100)}%`
+                        : '15%'}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="mb-7">
-                <div className="text-[44px] font-bold tracking-tight leading-none">${SHARE_AMOUNT.toFixed(2)}</div>
+                <div className="text-[44px] font-bold tracking-tight leading-none">
+                  ${(isLiveContract && liveShare !== null ? liveShare : SHARE_AMOUNT).toFixed(2)}
+                </div>
                 <p className="text-[13px] text-text-secondary mt-2.5 mb-0">
-                  Includes AWS compute, S3 storage &amp; Figma seats
+                  {isLiveContract ? 'Your exact registered on-chain share amount' : 'Includes AWS compute, S3 storage & Figma seats'}
                 </p>
               </div>
+
+              {/* Warning/Success alerts */}
+              {address && !isParticipant && (
+                <div className="mb-4 rounded-2xl border-[0.5px] border-amber-200 bg-amber-50 p-4 flex gap-3 items-start text-left">
+                  <span className="msym text-[22px] text-amber-500 shrink-0 mt-0.5">warning</span>
+                  <div>
+                    <div className="text-[13px] font-bold text-amber-900 mb-0.5">Not a participant</div>
+                    <p className="text-[12px] text-amber-800 m-0 leading-relaxed">
+                      Your connected wallet ({address.slice(0, 4)}…{address.slice(-4)}) is not registered in this split escrow. Please switch accounts in Freighter to pay.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {address && isCleared && (
+                <div className="mb-4 rounded-2xl border-[0.5px] border-green-200 bg-green-50 p-4 flex gap-3 items-start text-left">
+                  <span className="msym text-[22px] text-green-500 shrink-0 mt-0.5">check_circle</span>
+                  <div>
+                    <div className="text-[13px] font-bold text-green-900 mb-0.5">Share settled</div>
+                    <p className="text-[12px] text-green-800 m-0 leading-relaxed">
+                      You have already paid and settled your share for this split escrow.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error display */}
+              {(payError ?? walletError) && (
+                <div className="mb-4 w-full rounded-2xl border-[0.5px] border-[#FFDAD6] bg-[#FFDAD6]/30 p-4 flex gap-3 items-start text-left">
+                  <span className="msym text-[22px] text-[#BA1A1A] shrink-0 mt-0.5">error</span>
+                  <div>
+                    <div className="text-[13px] font-bold text-[#93000a] mb-0.5">Payment failed</div>
+                    <p className="text-[12px] text-[#BA1A1A] m-0 leading-relaxed">
+                      {payError ?? walletError}
+                    </p>
+                    {(payError?.includes('USDC') || payError?.includes('balance')) && (
+                      <p className="text-[11px] text-[#BA1A1A]/90 m-0 mt-2">
+                        Need testnet USDC? You can request some from the{' '}
+                        <a
+                          href="https://faucet.circle.com/"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-bold underline text-[#93000a]"
+                        >
+                          Circle Faucet
+                        </a>{' '}
+                        (choose Stellar Testnet corridor) or swap via Stellar Laboratory.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <button
                 type="button"
                 onClick={handleClaim}
-                disabled={paying || connecting}
-                className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3 disabled:opacity-60"
+                disabled={paying || connecting || (address && !isParticipant) || isCleared}
+                className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="msym text-lg">
                   {!address
                     ? 'account_balance_wallet'
-                    : biometricStage === 'verifying'
-                      ? 'fingerprint animate-pulse'
-                      : biometricStage === 'verified'
-                        ? 'check_circle'
-                        : 'lock'}
+                    : isCleared
+                      ? 'check_circle'
+                      : !isParticipant
+                        ? 'block'
+                        : biometricStage === 'verifying'
+                          ? 'fingerprint animate-pulse'
+                          : biometricStage === 'verified'
+                            ? 'check_circle'
+                            : 'lock'}
                 </span>
                 {!address
                   ? 'Connect wallet to pay'
-                  : paying && biometricStage === 'verifying'
-                    ? 'Verify with Face ID / Touch ID…'
-                    : paying && biometricStage === 'verified'
-                      ? 'Biometric verified! Sign on-chain…'
-                      : paying
-                        ? 'Settling on-chain…'
-                        : 'Approve & Settle'}
+                  : isCleared
+                    ? 'Share already settled'
+                    : !isParticipant
+                      ? 'Not a participant'
+                      : paying && biometricStage === 'verifying'
+                        ? 'Verify with Face ID / Touch ID…'
+                        : paying && biometricStage === 'verified'
+                          ? 'Biometric verified! Sign on-chain…'
+                          : paying
+                            ? 'Settling on-chain…'
+                            : 'Approve & Settle'}
               </button>
-
-              {(payError ?? walletError) && (
-                <div className="mb-3 text-[11px] text-[#93000a] text-center">{payError ?? walletError}</div>
-              )}
 
               {address && biometricStage !== 'unsupported' && (
                 <div className="w-full bg-neutral-light/50 border-[0.5px] border-border/50 rounded-xl p-3.5 mb-4 text-left flex flex-col gap-2.5">
