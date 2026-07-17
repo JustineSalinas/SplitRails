@@ -121,8 +121,13 @@ export function SplitCreator() {
   const [category, setCategory] = useState('Software & infra')
   const [dueDate, setDueDate] = useState('2026-07-20')
   const [autoNudge, setAutoNudge] = useState('After 3 days overdue')
+  // Default vendor to connected wallet so demo works immediately after connect;
+  // user can override with any valid G… address.
   const [vendorAddress, setVendorAddress] = useState('')
-  const [tokenAddress, setTokenAddress] = useState('')
+  const resolvedVendorAddress = vendorAddress || myAddress || ''
+  // Testnet USDC SAC — pre-filled for the demo; override if using a different token.
+  const TESTNET_USDC_SAC = 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA'
+  const [tokenAddress, setTokenAddress] = useState(TESTNET_USDC_SAC)
 
   // The payer's own address defaults to the connected wallet unless they
   // override it, so we never need to sync wallet state into participant state.
@@ -205,8 +210,8 @@ export function SplitCreator() {
 
   const reviewError = !balanced
     ? `Shares must add up to $${total.toFixed(2)}`
-    : !isValidStellarAddress(vendorAddress)
-      ? 'Enter a valid vendor address'
+    : !isValidStellarAddress(resolvedVendorAddress)
+      ? 'Enter a valid vendor address (or connect your wallet to use it as the vendor)'
       : !isValidStellarAddress(tokenAddress)
         ? 'Enter a valid token contract address'
         : participants.some((p) => !isValidStellarAddress(participantAddress(p)))
@@ -223,7 +228,7 @@ export function SplitCreator() {
     const deadlineUnix = Math.floor(new Date(`${dueDate}T23:59:59Z`).getTime() / 1000)
     const draft: EscrowDraft = {
       label,
-      vendorAddress: vendorAddress.trim(),
+      vendorAddress: resolvedVendorAddress.trim(),
       tokenAddress: tokenAddress.trim(),
       dueDate,
       deadlineUnix,
@@ -574,21 +579,42 @@ export function SplitCreator() {
               </div>
               <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-x-10 max-sm:gap-x-0 gap-y-4.5">
                 <div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
-                    Vendor address
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary">
+                      Vendor address
+                    </div>
+                    {myAddress && !vendorAddress && (
+                      <span className="text-[10px] font-semibold text-info bg-info-light px-1.5 py-0.5 rounded">
+                        Using connected wallet ✓
+                      </span>
+                    )}
+                    {myAddress && vendorAddress && (
+                      <button
+                        type="button"
+                        onClick={() => setVendorAddress('')}
+                        className="text-[10px] font-semibold text-text-muted hover:text-text-secondary border-none bg-transparent cursor-pointer p-0"
+                      >
+                        Reset to wallet
+                      </button>
+                    )}
                   </div>
                   <input
                     type="text"
                     value={vendorAddress}
                     onChange={(e) => setVendorAddress(e.target.value)}
-                    placeholder="G… (who gets paid)"
+                    placeholder={myAddress ? myAddress : 'G… (who gets paid — connect wallet to auto-fill)'}
                     spellCheck={false}
-                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none"
+                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none focus:border-info"
                   />
                 </div>
                 <div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary mb-1.5">
-                    Token contract
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-secondary">
+                      Token contract
+                    </div>
+                    <span className="text-[10px] font-semibold text-success bg-success-light px-1.5 py-0.5 rounded">
+                      USDC testnet SAC ✓
+                    </span>
                   </div>
                   <input
                     type="text"
@@ -596,7 +622,7 @@ export function SplitCreator() {
                     onChange={(e) => setTokenAddress(e.target.value)}
                     placeholder="C… (testnet USDC SAC)"
                     spellCheck={false}
-                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none"
+                    className="w-full py-2.5 px-3 border-[0.5px] border-border rounded-lg text-sm font-mono outline-none focus:border-info"
                   />
                 </div>
               </div>
