@@ -1,12 +1,20 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/finalsplitrailsicon.webp'
+import { isWalletAvailable } from '../lib/wallet'
 
 export function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [freighterMissing, setFreighterMissing] = useState(false)
+
+  useEffect(() => {
+    isWalletAvailable().then((available) => {
+      if (!available) setFreighterMissing(true)
+    })
+  }, [])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -17,6 +25,42 @@ export function Login() {
   return (
     <div className="min-h-screen bg-bg text-text-primary font-sans flex items-center justify-center p-6">
       <div className="w-full max-w-[400px]">
+
+        {/* Freighter install notice — shown to online viewers without the extension */}
+        {freighterMissing && (
+          <div className="mb-5 rounded-2xl border-[0.5px] border-amber-200 bg-amber-50 p-4 flex gap-3 items-start">
+            <span className="msym text-[22px] text-amber-500 shrink-0 mt-0.5">extension</span>
+            <div>
+              <div className="text-[13px] font-bold text-amber-900 mb-0.5">Freighter wallet required</div>
+              <p className="text-[12px] text-amber-800 m-0 mb-2 leading-relaxed">
+                SplitRails uses the <strong>Freighter browser extension</strong> to sign Stellar transactions.
+                Install it to interact with the live escrow demo.
+              </p>
+              <a
+                href="https://freighter.app"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-[12px] font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-full px-3 py-1.5 no-underline transition-colors"
+              >
+                <span className="msym text-sm">download</span>
+                Install Freighter — freighter.app
+                <span className="msym text-sm">open_in_new</span>
+              </a>
+              <p className="text-[11px] text-amber-700 m-0 mt-2">
+                After installing, set it to <strong>Testnet</strong> and fund your wallet at{' '}
+                <a
+                  href="https://laboratory.stellar.org/account-creator?network=testnet"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-bold text-amber-900 underline"
+                >
+                  Stellar Laboratory
+                </a>.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-center gap-2 mb-8">
           <img src={logo} alt="SplitRails" className="w-8 h-8 rounded-[9px] object-cover" />
           <span className="text-[19px] font-semibold tracking-tight">SplitRails</span>
