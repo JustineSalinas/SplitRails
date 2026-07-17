@@ -1,4 +1,4 @@
-# SplitRails
+# SplitRails Regional APAC Stellar Hackathon
 
 **Atomic, transaction-bound expense escrow for cross-border teams — built on Stellar.**
 
