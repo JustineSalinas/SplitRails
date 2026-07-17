@@ -1,83 +1,63 @@
-# SplitRails
+# 🚂 SplitRails
 
 **Atomic, transaction-bound expense escrow for cross-border teams — built on Stellar.**
 
-Three freelancers in three countries share one client's bills. Today, one person fronts the whole
-cost and spends weeks chasing the others over slow, expensive bank wires. SplitRails replaces that:
-one person creates a digital invoice that splits the bill automatically, each partner approves their
-portion, the money is held safely by a smart contract until **everyone** has paid, and then it's
-released to the vendor all at once — or refunded to everyone if someone doesn't pay in time. Every
-step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
+Three freelancers in three countries share one client's bills. Today, one person fronts the whole cost and spends weeks chasing the others over slow, expensive bank wires. 
 
-> Built for the **APAC Stellar Hackathon** (Rise In × Stellar Development Foundation).
+SplitRails replaces that: one person creates a digital invoice that splits the bill automatically, each partner approves their portion, the money is held safely by a smart contract until **everyone** has paid, and then it is released to the vendor all at once — or refunded to everyone if someone doesn't pay in time. Every step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
+
+> 🏆 Built for the **APAC Stellar Hackathon** (Rise In × Stellar Development Foundation).
+> Deployed Live on Stellar Testnet: [splitrails.vercel.app](https://splitrails.vercel.app)
 
 ---
 
-## 🔗 Deployed contract (Stellar Testnet)
+## 🔗 Smart Contract Architecture
 
-| Contract | Testnet address | Deployed |
+Every invoice created gets its own **isolated, sandboxed contract instance** deployed from our on-chain WASM blueprint. This state-isolation guarantees maximum security.
+
+### **On-Chain Contract Functions (`contracts/escrow/src/lib.rs`)**
+
+| Function | Parameters | Description |
 |---|---|---|
-| Escrow | `CDENUPG5EBM6ZCTOH7UVJMDHDLS4ZWABMUJFIV42LKEPYVFVPKO2P3IH` | ☑ |
-| Smart Wallet | N/A — see note below | ☐ |
-
-Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet). Every
-settlement in the app links directly to its live testnet transaction from the Audit Ledger.
-
-**On the smart wallet & passkey gate:** The WebAuthn passkey model is active as a biometric pre-flight gate on live settlements. The frontend registers a passkey, derives a challenge from the escrow transaction simulation hash, prompts for fingerprint/FaceID biometrics to sign client-side, and verifies the signature using the Web Crypto API. If verified, the transaction proceeds to Freighter for the on-chain signature. The custom Soroban contract account model (verifying secp256r1 signatures directly on-chain) was out of scope for this hackathon sprint, so live chain authorization still relies on Freighter. A standalone technical sandbox is also available at `/passkey-demo`.
+| **`init`** | `vendor: Address`, `token: Address`, `deadline: u64`, `total_required: i128`, `shares: Map<Address, i128>` | Deploys a new clone and registers the vendor, stablecoin token address, expiration Unix timestamp, total required amount, and per-participant share amounts. |
+| **`settle`** | `participant: Address` | Called by a participant to lock their designated share amount in the escrow. Automatically checks if the transaction is still open and not overdue. |
+| **`expire`** | None | If the deadline timestamp is reached and the total required amount is not met, any participant can trigger `expire` to automatically refund their locked shares back to their wallet. |
 
 ---
 
-## 📋 Submission
+## 🛠️ Tech Stack & Integrations
 
-### 1. Project information
-| Item | Link |
-|---|---|
-| Project Description | _submitted directly on the Rise In platform_ |
-| GitHub Repository | [github.com/JustineSalinas/SplitRails](https://github.com/JustineSalinas/SplitRails) (this repo) |
-| Video Demo | _link added here before the Jul 15 submission_ |
-| Presentation (PPT) | _link added here before the Jul 15 submission_ |
-
-### 2. Repository requirements
-- ☑ Repository is **public**
-- ☑ Clear documentation (this README + [`docs/`](docs/))
-- ☑ Deployed contract address in this README (see table above)
+* **Smart Contracts:** Rust & Soroban, compiled to WebAssembly.
+* **Frontend:** React (TypeScript) + Vite, styled using a TailwindCSS (v4) glassmorphic system.
+* **Biometrics:** WebAuthn API (Face ID, Touch ID, Windows Hello) performing client-side signature generation over simulated transaction hashes, verified using the Web Crypto API.
+* **Wallet:** Freighter Extension integration via `@stellar/freighter-api` and `@stellar/stellar-sdk`.
+* **General Ledger:** Custom GL Exporter generating structured, cost-center tagged CSVs for **QuickBooks** and **Xero**.
 
 ---
 
-## What's in this repo
+## ⚠️ Demo Restrictions & Product Constraints
 
-| Path | What it is | Owner |
-|---|---|---|
-| [`contracts/`](contracts/) | Rust/Soroban escrow contract (deployed); smart-wallet notes | Theodore (+ Llarie) |
-| [`web/`](web/) | React frontend — invoice, approvals, audit ledger | Earl |
-| [`backend/`](backend/) | Notes only — passkey server was dropped; `AnchorAdapter` lives in `web/src/lib/anchor.ts` | Llarie |
-| [`scripts/`](scripts/) | Setup & deploy helpers — **start with the toolchain guide** | Shared |
-| [`docs/`](docs/) | Product pitch + architecture | PM |
+To review our submission properly, please keep the following hackathon MVP scope constraints in mind:
 
-## Start here (new to the repo?)
+1. **Freighter Wallet Extension Required:** To interact with the live smart contract, you must be using a desktop browser (Chrome, Firefox, or Brave) with the **Freighter Extension** installed and set to **Testnet**.
+2. **Biometric Pre-Flight Check:** The biometric signature is validated client-side via the Web Crypto API as a pre-flight safety gate before the Freighter wallet submits the transaction. On-chain validation of `secp256r1` passkey signatures (Soroban custom account contract) is on our production roadmap.
+3. **Anchor Currency Corridors:** The payment UI displays localized off-ramp picker choices (PHP, VND, IDR) utilizing the SEP-24 interactive anchor API architecture. The fiat payout rails behind the anchors are mock implementations.
 
-1. **Everyone:** read [`docs/product/PITCH.md`](docs/product/PITCH.md) — you must be able to explain
-   SplitRails to a non-technical judge in 20 seconds.
-2. **Devs:** install the toolchain via [`scripts/setup-toolchain.md`](scripts/setup-toolchain.md),
-   then open your folder's README for your "definition of done."
-3. **Team members:** the daily plan, task board, and your "definition of done" live in the team's
-   internal build plan (shared in the team drive — not in this repo).
+---
 
-## Architecture (one glance)
+## 🚀 Step-by-Step Live Walkthrough Flow
 
-```
-React frontend (Earl)
-      │ uses
-Stellar JS SDK ───────────► Horizon (read ledger) + Soroban RPC (call/simulate)
-      │
-Escrow contract (Rust — Theodore) ── deployed to ──► Stellar testnet
-      ↕
-Anchors (SEP-24/31) — bridge to real-world PHP/VND/IDR bank rails (Llarie, interface only)
-```
+To experience the full end-to-end on-chain lifecycle:
 
-Full picture: [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
+1. **Go to New Split (`/new`):** Connect your Freighter wallet. Note that your connected wallet address automatically populates the **Vendor** and first participant address.
+2. **Review & Deploy:** Click **Review & Deploy** → **Deploy Escrow & Send**. Approve the Freighter pop-up to initialize the clone contract on the testnet.
+3. **Settle Share:** Copy the share link from the success page and navigate to it. Connect your wallet, click **Approve & Settle**, approve the Touch ID/Face ID prompt, and confirm the Freighter transfer.
+4. **Audit & Export:** Navigate to the **Audit Ledger** to view the live timeline and click **Export Ledger** to download a GL-tagged CSV.
 
-## Status
+---
 
-🟡 **In active development** — hackathon sprint, submission **Jul 15**. Testnet only; no mainnet, no
-real money.
+## 📄 Pitch & Preparation Resources
+
+All presentation and script materials have been compiled in the `docs` folder:
+* **[PITCH_PREP.md](docs/PITCH_PREP.md):** 14 tough judge Q&A questions and answers.
+* **[PITCH_SCRIPT.html](docs/PITCH_SCRIPT.html):** 15-slide, 3-minute read-along presentation script with slide timing and visual cues.
