@@ -35,6 +35,11 @@ export function logTx(label: string, hash: string, contractId: string, amount?: 
   write(entries)
 }
 
+export function logPasskeyGate(contractId: string, address: string) {
+  const shortAddress = `${address.slice(0, 4)}…${address.slice(-4)}`
+  logTx(`Biometric gate passed for ${shortAddress}`, 'passkey', contractId)
+}
+
 export function getTxLog(contractId?: string): TxLogEntry[] {
   const entries = read().sort((a, b) => a.timestamp - b.timestamp)
   return contractId ? entries.filter((e) => e.contractId === contractId) : entries
@@ -43,3 +48,4 @@ export function getTxLog(contractId?: string): TxLogEntry[] {
 export function stellarExpertTxUrl(hash: string) {
   return `${stellarExpertBase}/tx/${hash}`
 }
+

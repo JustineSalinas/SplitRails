@@ -15,6 +15,7 @@ export interface AnchorAdapter {
   currency: Corridor
   /** Only PHP is wired to a live testnet anchor for this demo; VND/IDR are configured but disabled. */
   enabled: boolean
+  demoOnly?: boolean
   /** SEP-24-style interactive deposit — returns the anchor's hosted interactive URL. */
   initDeposit(amount: string): Promise<{ interactiveUrl: string }>
   /** SEP-24-style interactive withdraw — returns the anchor's hosted interactive URL. */
@@ -50,9 +51,18 @@ function makeCorridor(
 }
 
 export const corridors: Record<Corridor, AnchorAdapter> = {
-  PHP: makeCorridor('PHP', true, PHP_ANCHOR_TRANSFER_SERVER),
-  VND: makeCorridor('VND', false, null),
-  IDR: makeCorridor('IDR', false, null),
+  PHP: {
+    ...makeCorridor('PHP', true, PHP_ANCHOR_TRANSFER_SERVER),
+    demoOnly: false,
+  },
+  VND: {
+    ...makeCorridor('VND', true, PHP_ANCHOR_TRANSFER_SERVER),
+    demoOnly: true,
+  },
+  IDR: {
+    ...makeCorridor('IDR', true, PHP_ANCHOR_TRANSFER_SERVER),
+    demoOnly: true,
+  },
 }
 
 export function getCorridor(currency: Corridor): AnchorAdapter {

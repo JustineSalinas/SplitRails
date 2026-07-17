@@ -55,6 +55,15 @@ function CopyHash({ hash }: HashEvent) {
 }
 
 function LiveTxLink({ entry }: { entry: TxLogEntry }) {
+  if (entry.hash === 'passkey') {
+    return (
+      <div className="mt-2 inline-flex items-center gap-2 bg-neutral-light rounded-lg px-3 py-2 text-text-secondary text-xs">
+        <span className="msym text-sm text-info">fingerprint</span>
+        <span>Biometric signature verified client-side (no on-chain fee)</span>
+      </div>
+    )
+  }
+
   return (
     <a
       href={stellarExpertTxUrl(entry.hash)}
@@ -322,23 +331,28 @@ export function AuditLedger() {
                 <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-3">
                   Live on-chain actions this session
                 </div>
-                {liveTxLog.map((entry) => (
-                  <div key={entry.hash} className="flex gap-4 relative pb-6">
-                    <div className="absolute left-[17px] top-[34px] bottom-[-8px] w-0.5 bg-border" />
-                    <div className="w-[34px] h-[34px] rounded-full bg-success-light flex items-center justify-center shrink-0 z-[1]">
-                      <span className="msym fill text-success text-[17px]">check_circle</span>
-                    </div>
-                    <div className="flex-1 pt-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-bold">{entry.label}</span>
-                        <span className="font-mono text-xs text-text-muted">
-                          {new Date(entry.timestamp).toLocaleTimeString()}
+                {liveTxLog.map((entry) => {
+                  const isPasskey = entry.hash === 'passkey'
+                  return (
+                    <div key={entry.hash + '-' + entry.timestamp} className="flex gap-4 relative pb-6">
+                      <div className="absolute left-[17px] top-[34px] bottom-[-8px] w-0.5 bg-border" />
+                      <div className={`w-[34px] h-[34px] rounded-full ${isPasskey ? 'bg-info-light' : 'bg-success-light'} flex items-center justify-center shrink-0 z-[1]`}>
+                        <span className={`msym ${isPasskey ? '' : 'fill'} ${isPasskey ? 'text-info' : 'text-success'} text-[17px]`}>
+                          {isPasskey ? 'fingerprint' : 'check_circle'}
                         </span>
                       </div>
-                      <LiveTxLink entry={entry} />
+                      <div className="flex-1 pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold">{entry.label}</span>
+                          <span className="font-mono text-xs text-text-muted">
+                            {new Date(entry.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <LiveTxLink entry={entry} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 

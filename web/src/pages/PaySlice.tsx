@@ -6,6 +6,7 @@ import { corridors, type Corridor } from '../lib/anchor'
 import { getEscrowClient, settleShare } from '../lib/escrow'
 import { createPasskey, isPasskeySupported, signWithPasskey, verifyAssertion } from '../lib/passkey'
 import { loadPasskeyRegistration, savePasskeyRegistration } from '../lib/passkeyStore'
+import { logPasskeyGate } from '../lib/txLog'
 
 const DEADLINE_SECONDS = 14 * 3600 + 20 * 60 + 28
 const SHARE_AMOUNT = 1080
@@ -70,11 +71,17 @@ export function PaySlice() {
     try {
       if (isPasskeySupported()) {
         await verifyWithPasskey(address)
+        const targetContractId = contractId || 'CDENUPG5EBM6ZCTOH7UVJMDHDLS4ZWABMUJFIV42LKEPYVFVPKO2P3IH'
+        logPasskeyGate(targetContractId, address)
+        await new Promise((resolve) => setTimeout(resolve, 1200))
       }
       await settleShare(address, address, contractId)
       navigate('/locked')
     } catch (err) {
       setPayError(err instanceof Error ? err.message : 'Failed to settle your share')
+      if (isPasskeySupported()) {
+        setBiometricStage('idle')
+      }
     } finally {
       setPaying(false)
     }
@@ -218,26 +225,70 @@ export function PaySlice() {
                 className="w-full h-[52px] inline-flex items-center justify-center gap-2 bg-gradient-brand text-white border-none rounded-full text-[15px] font-semibold cursor-pointer shadow-[0_2px_8px_rgba(0,122,255,0.25)] hover:shadow-[0_4px_14px_rgba(0,122,255,0.35)] active:scale-98 mb-3 disabled:opacity-60"
               >
                 <span className="msym text-lg">
-                  {!address ? 'account_balance_wallet' : biometricStage === 'verifying' ? 'fingerprint' : 'lock'}
+                  {!address
+                    ? 'account_balance_wallet'
+                    : biometricStage === 'verifying'
+                      ? 'fingerprint animate-pulse'
+                      : biometricStage === 'verified'
+                        ? 'check_circle'
+                        : 'lock'}
                 </span>
                 {!address
                   ? 'Connect wallet to pay'
                   : paying && biometricStage === 'verifying'
                     ? 'Verify with Face ID / Touch ID…'
-                    : paying
-                      ? 'Settling…'
-                      : 'Approve & Settle'}
+                    : paying && biometricStage === 'verified'
+                      ? 'Biometric verified! Sign on-chain…'
+                      : paying
+                        ? 'Settling on-chain…'
+                        : 'Approve & Settle'}
               </button>
 
               {(payError ?? walletError) && (
                 <div className="mb-3 text-[11px] text-[#93000a] text-center">{payError ?? walletError}</div>
               )}
 
+              {address && biometricStage !== 'unsupported' && (
+                <div className="w-full bg-neutral-light/50 border-[0.5px] border-border/50 rounded-xl p-3.5 mb-4 text-left flex flex-col gap-2.5">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Approval Protocol</div>
+                  
+                  {/* Step 1 */}
+                  <div className="flex items-start gap-2.5">
+                    <span className={`msym text-base ${biometricStage === 'verified' ? 'text-success' : biometricStage === 'verifying' ? 'text-action animate-pulse' : 'text-text-muted'}`}>
+                      {biometricStage === 'verified' ? 'check_circle' : 'fingerprint'}
+                    </span>
+                    <div className="text-xs">
+                      <span className={`font-semibold ${biometricStage === 'verified' || biometricStage === 'verifying' ? 'text-text-primary' : 'text-text-muted'}`}>
+                        Step 1: Biometric Pre-Flight Gate
+                      </span>
+                      <p className="text-[10px] text-text-secondary m-0 leading-tight">
+                        {biometricStage === 'verified' ? '✓ Signature verified.' : 'Cryptographically binds passkey credentials to this settlement hash.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="flex items-start gap-2.5">
+                    <span className={`msym text-base ${paying && biometricStage === 'verified' ? 'text-action animate-pulse' : 'text-text-muted'}`}>
+                      account_balance_wallet
+                    </span>
+                    <div className="text-xs">
+                      <span className={`font-semibold ${paying && biometricStage === 'verified' ? 'text-text-primary' : 'text-text-muted'}`}>
+                        Step 2: On-Chain Wallet Signature
+                      </span>
+                      <p className="text-[10px] text-text-secondary m-0 leading-tight">
+                        Freighter authorization to submit and settle your share on the Stellar network.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
                 <span className="msym text-sm">{biometricStage === 'unsupported' ? 'lock' : 'fingerprint'}</span>
                 {biometricStage === 'unsupported'
                   ? 'Biometric approval unavailable on this device — signed with your wallet only'
-                  : 'Passwordless approval via Face ID / Touch ID, then wallet-signed on-chain'}
+                  : 'Passwordless pre-flight approval via Face ID / Touch ID, then wallet-signed on-chain'}
               </div>
             </div>
 
@@ -278,6 +329,14 @@ export function PaySlice() {
                 </p>
               ) : corridors[payoutCurrency].enabled ? (
                 <>
+                  {corridors[payoutCurrency].demoOnly && (
+                    <div className="mb-3 p-2.5 rounded-lg bg-info-light/50 border-[0.5px] border-info/20 text-[11px] text-text-secondary text-left flex items-start gap-1.5">
+                      <span className="msym text-sm text-info">info</span>
+                      <span>
+                        <strong>Demo Corridor:</strong> Points to the standard testnet anchor (SEP-24 USDC sandbox) as VND/IDR bank rails are out of scope.
+                      </span>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={handleOpenAnchor}

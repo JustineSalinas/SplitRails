@@ -23,12 +23,7 @@ step leaves a permanent, tamper-proof paper trail on the Stellar ledger.
 Verify any transaction on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet). Every
 settlement in the app links directly to its live testnet transaction from the Audit Ledger.
 
-**On the smart wallet:** the on-chain WebAuthn contract account was out of scope to ship fully this
-sprint, so live settlement uses one-tap wallet approval instead — a real signature bound to that
-specific transaction, not a generic login. As a technical proof-of-concept, `/passkey-demo` in the
-frontend does exercise a real browser passkey (WebAuthn) end-to-end — creating a credential and
-producing a signature over a hash of a real escrow transaction, verified client-side — but it is not
-wired into the contract account model and does not authorize on-chain actions.
+**On the smart wallet & passkey gate:** The WebAuthn passkey model is active as a biometric pre-flight gate on live settlements. The frontend registers a passkey, derives a challenge from the escrow transaction simulation hash, prompts for fingerprint/FaceID biometrics to sign client-side, and verifies the signature using the Web Crypto API. If verified, the transaction proceeds to Freighter for the on-chain signature. The custom Soroban contract account model (verifying secp256r1 signatures directly on-chain) was out of scope for this hackathon sprint, so live chain authorization still relies on Freighter. A standalone technical sandbox is also available at `/passkey-demo`.
 
 ---
 
