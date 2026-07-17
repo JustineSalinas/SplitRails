@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SplitRails — Hackathon Pitch & Q&A Prep Guide</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a202c;
+      background-color: #ffffff;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+      color: #0f172a;
+    }
+    h2 {
+      font-size: 1.6rem;
+      color: #1e293b;
+      margin-top: 40px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 1.15rem;
+      color: #334155;
+      margin-top: 25px;
+      margin-bottom: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+    }
+    ul, ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      background-color: #eff6ff;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+    .badge-tip {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    .badge-important {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    .badge-warning {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚂 SplitRails — Hackathon Pitch & Q&A Prep Guide</h1>
+  <p>This is your master preparation guide for the Rise In × Stellar hackathon pitch, formatted for easy copying and pasting into Google Docs or Word.</p>
+
+  <h2>🎨 Brand Design System & Color Guide</h2>
+  <p>SplitRails uses a strict semantic color palette to direct user attention and build trust:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Token / Layer</th>
+        <th>Color Code</th>
+        <th>Application in UI</th>
+        <th>Presentation Slide Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>🔵 Brand Gradient</strong></td>
+        <td><code>#3b82f6</code> to <code>#06b6d4</code></td>
+        <td>Organizer badges, progress bars, primary actions</td>
+        <td><strong>Stellar USDC & Trust</strong></td>
+      </tr>
+      <tr>
+        <td><strong>🟠 Action (Urgent)</strong></td>
+        <td><code>#EA580C</code> to <code>#F97316</code></td>
+        <td>Warning counters, pending settle slices</td>
+        <td><strong>Needs Action / Time-Critical</strong></td>
+      </tr>
+      <tr>
+        <td><strong>🟢 Success (Settled)</strong></td>
+        <td><code>#16A34A</code> to <code>#22C55E</code></td>
+        <td>Cleared statuses, receipt lock marks</td>
+        <td><strong>Settle Complete / Released</strong></td>
+      </tr>
+      <tr>
+        <td><strong>🔘 Neutral (Slate)</strong></td>
+        <td><code>#0F172A</code> to <code>#64748B</code></td>
+        <td>Base layout cards, inactive borders</td>
+        <td><strong>On-Chain Architecture</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>🚀 The 3-Step User Journey</h2>
+  <p>Here is the atomic flow of SplitRails, designed to be explained in 45 seconds:</p>
+  <ol>
+    <li><strong>1. SETUP:</strong> Organizer inputs total and splits shares. (Custom GL Tags assigned like Cost Center &amp; Project ID).</li>
+    <li><strong>2. ESCROW:</strong> An isolated clone of the Soroban contract is deployed on-chain for trustless custody of USDC contributions.</li>
+    <li><strong>3. SETTLE:</strong> Participants approve biometrically via Face ID / Touch ID, then Freighter submits the USDC settlement on-chain.</li>
+  </ol>
+
+  <h2>⏱️ 3-Minute Presentation Script</h2>
+
+  <h3><strong>1. The Hook (0:00 - 0:25)</strong></h3>
+  <blockquote>
+    "Three freelancers in three countries share one client's bills. Today, one person fronts the whole cost and spends weeks chasing the others over slow, expensive bank wires. <strong>SplitRails replaces that:</strong> one digital invoice that splits the bill automatically, held safely by a smart contract until everyone has paid, and released to the vendor all at once."
+  </blockquote>
+
+  <h3><strong>2. Setup & Deployment (0:25 - 1:10)</strong></h3>
+  <p>"Let's look at the app. We log in and click <strong>New Split</strong>. We want to split a $4,850.00 AWS bill. The app automatically assigns GL Accounting codes like Cost Center and Project ID."</p>
+  <p>"At the bottom, our connected wallet is auto-detected as the vendor address, and the testnet USDC contract is pre-loaded. We click <strong>Review & Deploy</strong>."</p>
+  <p>"This deploys a brand new instance of our Rust escrow contract from the on-chain WASM blueprint. This state isolation ensures that every invoice is fully sandboxed and secure."</p>
+  <div><span class="badge badge-tip">Presentation Tip</span> Show a graphic representing isolated, sandboxed smart contracts side-by-side to emphasize security.</div>
+
+  <h3><strong>3. Biometric Gate & Pay (1:10 - 2:00)</strong></h3>
+  <p>"Now, a participant opens their pay link. They click <strong>Approve & Settle</strong>."</p>
+  <p>"Our <strong>Approval Protocol</strong> executes a two-step gate. First: a biometric pre-flight check prompts for Face ID or Touch ID, signing a cryptographic challenge derived from the transaction simulation hash. Second: once verified client-side, the Freighter wallet prompts for a final signature to submit the transaction to the Stellar network."</p>
+  <div><span class="badge badge-important">Key Pitch Line</span> "This is two-factor security: biometric validation of the transaction hash first, then wallet-level signature. It prevents malicious front-running and phishing."</div>
+
+  <h3><strong>4. Audits & Reconciliations (2:00 - 2:45)</strong></h3>
+  <p>"As soon as the transaction lands, our on-chain status tracker updates. Once the last person clears, the contract atomically pays the vendor. If the deadline had missed, the contract would let us withdraw a full refund."</p>
+  <p>"Finally, the finance team checks the <strong>Audit Ledger</strong>. We see a live timeline of all locks and biometric verifications. With one click, we can export a GL-tagged CSV that imports straight into QuickBooks or Xero, matching our on-chain ledger."</p>
+
+  <h3><strong>5. Closing (2:45 - 3:00)</strong></h3>
+  <blockquote>
+    "No escrow company, no middleman, no trust required. The smart contract is the intermediary. That is SplitRails."
+  </blockquote>
+
+  <h2>💬 14 Judge Q&A Questions & Answers</h2>
+
+  <h3><strong>Q1: Why do you deploy a contract instance per invoice instead of one central contract?</strong></h3>
+  <p><strong>A:</strong> Security and state isolation. If we used one monolithic contract, a state corruption or rounding bug could lock everyone's funds globally. By using Soroban's factory pattern to deploy isolated clones, each split is sandboxed. If one split expires or has an issue, it has zero impact on the rest of the system.</p>
+
+  <h3><strong>Q2: How secure is the passkey pre-flight? What does it actually sign?</strong></h3>
+  <p><strong>A:</strong> It's highly secure because it's transaction-bound. Instead of signing a static login string, the passkey signs a SHA-256 hash of the actual simulated escrow transaction. This cryptographically binds their biometric approval to this exact settlement amount and vendor address before it even hits the wallet.</p>
+
+  <h3><strong>Q3: What happens if a participant refuses to pay or misses the deadline?</strong></h3>
+  <p><strong>A:</strong> No one's money is trapped. The escrow contract has a strict Unix timestamp deadline set at initialization. If that deadline passes and the total required amount is not met, the contract status shifts, allowing participants to safely call the <code>expire</code> function and claim a 100% refund of their locked shares.</p>
+
+  <h3><strong>Q4: How do you bridge this to fiat currencies for traditional vendors?</strong></h3>
+  <p><strong>A:</strong> Through Stellar's SEP-24 Anchor standard. In the payout picker, we demonstrate interactive fiat corridors (PHP, VND, IDR). A vendor doesn't need to know what USDC is—they receive local fiat currency directly in their bank account via the Stellar anchor bridge.</p>
+
+  <h3><strong>Q5: How do you handle rounding errors when dividing odd amounts among participants?</strong></h3>
+  <p><strong>A:</strong> Soroban contracts require exact math, and a transaction will reject if the shares don't sum to the total down to the last stroop (7 decimal places). To prevent this, our frontend's <code>splitEvenly</code> algorithm calculates splits in integer cents and automatically distributes any remaining fractional cents to the first unlocked participants. This guarantees the shares always equal the total required on-chain.</p>
+
+  <h3><strong>Q6: If the passkey is verified client-side, what stops a malicious frontend from bypassing the biometric check?</strong></h3>
+  <p><strong>A:</strong> For this MVP sprint, the biometric signature is verified using the browser's Web Crypto API as a pre-flight security gate. In our production roadmap, the public key generated during passkey registration will be stored on-chain inside a custom Soroban Smart Wallet contract, making the contract verify the signature directly before accepting the payment transaction.</p>
+
+  <h3><strong>Q7: How does the contract know if a participant paid? Do they transfer directly to the contract?</strong></h3>
+  <p><strong>A:</strong> Yes. When a participant calls <code>settle()</code>, the escrow contract interacts directly with the USDC Stellar Asset Contract (SAC). It pulls the designated share amount from the participant's address and deposits it into the escrow contract's own address. If the transfer succeeds, the contract updates their status to <code>cleared</code> in its internal state.</p>
+
+  <h3><strong>Q8: Why is this better than Splitwise or traditional corporate card expense managers?</strong></h3>
+  <p><strong>A:</strong> Traditional tools like Splitwise only log IOUs—they don't settle them. Card managers require one employee to front 100% of the cost on their card and wait weeks for reimbursement. SplitRails settles payment atomically: no one has to front the money, funds are held trustlessly in escrow, and the vendor gets paid only when everyone has contributed.</p>
+
+  <h3><strong>Q9: How does the app scale for large organizations with hundreds of shared invoices?</strong></h3>
+  <p><strong>A:</strong> Every invoice has its own isolated contract deployment. State lookups are decentralized, and the Dashboard aggregates status updates asynchronously. Furthermore, the cost-center tags match standard General Ledger formatting, allowing finance departments to export and reconcile hundreds of splits instantly via CSV.</p>
+
+  <h3><strong>Q10: What are the transaction fees (gas) like for deploying a new contract per invoice?</strong></h3>
+  <p><strong>A:</strong> On Stellar, fees are extremely low—typically less than a fraction of a cent ($0.00001 XLM per transaction). Even deploying a new contract instance costs negligible network fees, making the isolated contract architecture highly cost-effective compared to Ethereum or other L1s.</p>
+
+  <h3><strong>Q11: What happens if a participant pays, the invoice expires, and they forget to claim their refund?</strong></h3>
+  <p><strong>A:</strong> The funds are never lost. The contract stores the balances securely until a refund is requested. Any participant or the organizer can trigger the <code>expire()</code> function at any point after the deadline, which immediately executes the refunds back to the respective contributors' wallets.</p>
+
+  <h3><strong>Q12: How does SplitRails handle privacy? Can anyone see our company's shared bills on the ledger?</strong></h3>
+  <p><strong>A:</strong> Because it is built on a public ledger, contract interactions are visible. However, the contract only stores public keys, share amounts, and statuses. Sensitive business data—like participant email addresses and itemized line-item descriptions—remains strictly off-chain in local storage or the company's internal database.</p>
+
+  <h3><strong>Q13: Are participants required to have XLM to pay network fees, or is there gasless sponsorship?</strong></h3>
+  <p><strong>A:</strong> For this testnet demo, participants sign transactions using their own Freighter wallet (which requires a tiny amount of testnet XLM for fees). For production, we can utilize Stellar's fee-sponsorship feature, allowing the company organizer to sponsor all transaction fees so employees have a completely gasless experience.</p>
+
+  <h3><strong>Q14: What is your go-to-market strategy? Who is the ideal customer?</strong></h3>
+  <p><strong>A:</strong> Our initial target customers are remote-first Web3 startups, DAO contributors, and cross-border digital agencies. These groups already utilize wallets and stablecoins, frequently split shared tools (like AWS, Figma, and GitHub), and suffer the most from slow, expensive international wire transfers.</p>
+
+</body>
+</html>
