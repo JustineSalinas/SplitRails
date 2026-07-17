@@ -40,15 +40,15 @@ const SPLITS: SplitEntry[] = [
     category: 'action',
     to: '/pay',
     chip: { label: 'Pay Alex', variant: 'action' },
-    title: 'AWS + Design Tools — Q3',
-    subtitle: 'Amazon Web Services · settled with 5 of 6',
+    title: 'Q3 Client Infrastructure & Tooling',
+    subtitle: 'Amazon Web Services · 77% collected',
     footer: () => (
       <div className="flex items-center justify-between">
         <div>
           <div className="text-[11px] font-semibold tracking-[0.08em] uppercase text-text-muted mb-0.5">
             You owe
           </div>
-          <div className="font-mono text-[17px] font-semibold text-action-hover">$1,410.00</div>
+          <div className="font-mono text-[17px] font-semibold text-action-hover">$1,080.00</div>
         </div>
         <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-action">
           Pay now <span className="msym text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
