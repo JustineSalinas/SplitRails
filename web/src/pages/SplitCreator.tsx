@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Keypair } from '@stellar/stellar-sdk'
 import { DatePicker } from '../components/DatePicker'
 import { DonutChart } from '../components/DonutChart'
 import { ParticipantRow } from '../components/ParticipantRow'
@@ -56,8 +57,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#C64F00',
     donutColor: '#5E5CE6',
     initials: 'AS',
-    // Demo testnet address — replace with real participant address before mainnet use
-    address: 'GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR',
+    // Genuinely valid random Stellar public key to pass SDK checksum checks
+    address: Keypair.random().publicKey(),
     amount: 1212.5,
     locked: false,
     removable: true,
@@ -69,8 +70,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#263143',
     donutColor: '#0EA5A5',
     initials: 'MK',
-    // Demo testnet address — replace with real participant address before mainnet use
-    address: 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
+    // Genuinely valid random Stellar public key to pass SDK checksum checks
+    address: Keypair.random().publicKey(),
     amount: 1212.5,
     locked: false,
     removable: true,
@@ -82,8 +83,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#5c5f61',
     donutColor: '#8E8E93',
     initials: 'TR',
-    // Demo testnet address — replace with real participant address before mainnet use
-    address: 'GDQNY5ODCHBBKTZLT2HQFUBZMJXTECFOHZEI6WQVCXBC6XMDI2DZQHKH',
+    // Genuinely valid random Stellar public key to pass SDK checksum checks
+    address: Keypair.random().publicKey(),
     amount: 1212.5,
     locked: false,
     removable: true,
