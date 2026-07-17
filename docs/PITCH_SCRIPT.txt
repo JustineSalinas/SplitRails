@@ -1,0 +1,124 @@
+SPLITRAILS — 15-SLIDE PRESENTATION SCRIPT
+============================================================
+Total Target Time: 3:00 minutes (180 seconds)
+Format: [Slide Title] -> [Slide Timing] -> [Script to Read] -> [Visual Cue]
+============================================================
+
+Slide 1: Title Slide (SplitRails Logo)
+Timing: 0:00 - 0:10 (10 seconds)
+Script:
+"Hello everyone. Today, we are excited to present SplitRails: the first trustless, automated B2B expense escrow system built specifically for cross-border teams in the APAC region."
+Visual Cue: Open the presentation and show the SplitRails logo.
+
+------------------------------------------------------------
+
+Slide 2: Spreadsheet Error Statistic (94%)
+Timing: 0:10 - 0:20 (10 seconds)
+Script:
+"Let’s start with a shocking reality: ninety-four percent of all shared spreadsheets contain manual errors. When companies split shared SaaS bills offline, they are bleeding time and money."
+Visual Cue: Highlight the large "94%" graphic.
+
+------------------------------------------------------------
+
+Slide 3: Market Pain Points
+Timing: 0:20 - 0:32 (12 seconds)
+Script:
+"As remote work grows across Southeast Asia, teams are facing three massive friction points: painful currency exchange spreads, high international bank wire fees, and hours of manual accounting reconciliation."
+Visual Cue: Point to the Freelancer and Reconcile stats.
+
+------------------------------------------------------------
+
+Slide 4: Real-World Use Case (The Story)
+Timing: 0:32 - 0:47 (15 seconds)
+Script:
+"Take a real-world example: a development firm in Iloilo, a designer in Vietnam, and a DevOps engineer in Indonesia need to split a fifteen-hundred-dollar AWS bill. Today, one person fronts the money and waits weeks for bank transfers to clear."
+Visual Cue: Point to the locations on the map.
+
+------------------------------------------------------------
+
+Slide 5: The Three Core Failures
+Timing: 0:47 - 0:59 (12 seconds)
+Script:
+"This process fails in three ways: we get shadow spreadsheets that don't match, massive currency conversion leakage, and an audit gap because payments and accounting live in separate places."
+Visual Cue: Point to the three callout boxes.
+
+------------------------------------------------------------
+
+Slide 6: The Solution (SplitRails Blueprint)
+Timing: 0:59 - 1:11 (12 seconds)
+Script:
+"SplitRails completely replaces this mess. We use automated smart escrows on Stellar. The contract holds the contributions securely, verifies them, and releases them atomically to the vendor."
+Visual Cue: Show the four-step flow diagram.
+
+------------------------------------------------------------
+
+Slide 7: Core Product Features Overview
+Timing: 1:11 - 1:21 (10 seconds)
+Script:
+"Our system delivers four key features: the Split Creator, instant payment Settle Links, a secure biometric pre-flight vault, and an automated audit ledger."
+Visual Cue: Show the overview of the 4 features.
+
+------------------------------------------------------------
+
+Slide 8: Feature 1: Split Creator
+Timing: 1:21 - 1:33 (12 seconds)
+Script:
+"With the Split Creator, an organizer sets up the invoice, splits shares equally or proportionally, inputs general ledger tags, and deploys a custom, isolated Soroban smart contract instance."
+Visual Cue: Point to the creator interface screen.
+
+------------------------------------------------------------
+
+Slide 9: Feature 2: Settle Link & Payout picker
+Timing: 1:33 - 1:45 (12 seconds)
+Script:
+"Each participant receives a direct Settle Link to pay their slice. They can choose their preferred local payout method, using Stellar anchors to connect directly to regional bank rails."
+Visual Cue: Highlight the currency selectors (PHP, VND, IDR).
+
+------------------------------------------------------------
+
+Slide 10: Feature 3: Biometric Security
+Timing: 1:45 - 2:00 (15 seconds)
+Script:
+"Security is paramount. We implemented a biometric pre-flight gate. Users must scan their fingerprint or face (Touch ID / Face ID) to sign a cryptographic hash of the transaction before submitting."
+Visual Cue: Point to the fingerprint icon and step indicators.
+
+------------------------------------------------------------
+
+Slide 11: Feature 4: Audit & General Ledger Export
+Timing: 2:00 - 2:12 (12 seconds)
+Script:
+"Finally, the Audit Ledger visualizes the settlement timeline. With one click, the finance team exports a General Ledger-compliant CSV, mapping transactions directly into QuickBooks or Xero."
+Visual Cue: Show the timeline graph and CSV export button.
+
+------------------------------------------------------------
+
+Slide 12: Technical Architecture
+Timing: 2:12 - 2:27 (15 seconds)
+Script:
+"Under the hood, we are fully integrated with Stellar. We deploy isolated Soroban escrow contracts, settle natively in USDC, and support localized on/off-ramping via regional anchor APIs."
+Visual Cue: Point to the Stellar, USDC, and Anchor logos.
+
+------------------------------------------------------------
+
+Slide 13: Market Validation (Philippines & APAC Focus)
+Timing: 2:27 - 2:42 (15 seconds)
+Script:
+"Looking at the Southeast Asian market, traditional remittance fees take over six percent of transfers. By utilizing Stellar's network, SplitRails cuts this down to less than zero-point-five percent."
+Visual Cue: Focus on the comparison diagram showing fee savings.
+
+------------------------------------------------------------
+
+Slide 14: Competitive Matrix
+Timing: 2:42 - 2:54 (12 seconds)
+Script:
+"Compared to consumer split apps or expensive corporate card managers, SplitRails is the only tool that offers decentralized atomic execution, built-in biometrics, and zero-liability fronting."
+Visual Cue: Point to the comparison checkmarks table.
+
+------------------------------------------------------------
+
+Slide 15: Conclusion & Closing Tagline
+Timing: 2:54 - 3:00 (6 seconds)
+Script:
+"SplitRails makes trust programmable, taking B2B expenses to the next level on Stellar. Thank you, and we welcome your questions."
+Visual Cue: Slide showing "Thank You / Q&A" contact links.
+============================================================
