@@ -56,7 +56,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#C64F00',
     donutColor: '#5E5CE6',
     initials: 'AS',
-    address: '',
+    // Demo testnet address — replace with real participant address before mainnet use
+    address: 'GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR',
     amount: 1212.5,
     locked: false,
     removable: true,
@@ -68,7 +69,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#263143',
     donutColor: '#0EA5A5',
     initials: 'MK',
-    address: '',
+    // Demo testnet address — replace with real participant address before mainnet use
+    address: 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
     amount: 1212.5,
     locked: false,
     removable: true,
@@ -80,7 +82,8 @@ const initialParticipants: Participant[] = [
     avatarBg: '#5c5f61',
     donutColor: '#8E8E93',
     initials: 'TR',
-    address: '',
+    // Demo testnet address — replace with real participant address before mainnet use
+    address: 'GDQNY5ODCHBBKTZLT2HQFUBZMJXTECFOHZEI6WQVCXBC6XMDI2DZQHKH',
     amount: 1212.5,
     locked: false,
     removable: true,
